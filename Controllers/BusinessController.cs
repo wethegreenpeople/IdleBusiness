@@ -8,6 +8,7 @@ using IdleBusiness.Data;
 using IdleBusiness.Helpers;
 using IdleBusiness.Models;
 using IdleBusiness.Views.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,7 @@ namespace IdleBusiness.Controllers
             _businessHelper = new BusinessHelper(context);
         }
 
+        [Authorize]
         public async Task<IActionResult> Index(int id)
         {
             var vm = new BusinessIndexVM();
@@ -60,6 +62,7 @@ namespace IdleBusiness.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> InvestInCompany(int companyToInvestInId, float investmentAmount)
         {
             var user = await GetCurrentEntrepreneur();
@@ -90,6 +93,7 @@ namespace IdleBusiness.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CommitEspionage(int companyToEspionageId)
         {
             var user = await GetCurrentEntrepreneur();
