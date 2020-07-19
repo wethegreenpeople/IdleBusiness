@@ -1,0 +1,147 @@
+﻿@model IdleBusiness.Views.Models.BusinessIndexVM;
+
+<div class="row">
+    <div class="col-5">
+        <div class="row">
+            <h2>@Model.Business.Name</h2>
+        </div>
+
+        <div class="row">
+            <ul class="list-group">
+                <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.Business.Cash"></span></li>
+                <li class="list-group-item">Cash per second: <span id="businessCashPerSecond" class="formatted-number" data-number-to-format="@Model.Business.CashPerSecond"></span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col mt-5">
+        <div class="row"><h2>Invest</h2></div>
+        <div class="row">
+
+            @if (Model.CurrentEntrepreneur.Business.LifeTimeEarnings > 1000000)
+            {
+                <form asp-controller="Business" asp-action="InvestInCompany" asp-route-companyToInvestInId="@Model.Business.Id" method="post">
+                    <div class="card mr-2" style="width: 24rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Invest in @Model.Business.Name</h5>
+                            <p class="card-subtitle mb-2">
+                                Profit Percentage: <span id="profitPercentage" class="formatted-number" data-number-to-format="0" data-number-format-style="0%"></span>
+                            </p>
+                            <p class="card-subtitle mb-2 text-muted">Invest in business for one day. At 5PM market time, you will collect a percentage of the profits the invested company made between the investment time and market close.</p>
+                            <div class="form-group">
+                                <label for="investmentAmount">Investment Amount (from your CPS)</label>
+                                <input type="text" class="form-control" id="investmentAmount" name="investmentAmount" pattern="\d*">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Invest</button>
+                        </div>
+                    </div>
+
+                </form>
+            }
+            else
+            {
+                <div class="card mr-2" style="width: 24rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Locked</h5>
+                        <p class="card-subtitle mb-2">
+                            Cannot invest in @Model.Business.Name until you have reached 1m lifetime profits
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.HasCurrentEntrepreneurInvestedInBusiness)
+        {
+            <div class="row">
+                <div class="card mr-2 mt-2" style="width: 24rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Current investments in @Model.Business.Name</h5>
+                        <p class="card-subtitle mb-2">
+                            Total Invested: <span id="totalInvestedAmount" class="formatted-number" data-number-to-format="@Model.TotalInvestedAmount" data-number-format-style="$0.0a"></span>
+                        </p>
+                        <p class="card-subtitle mb-2">
+                            Approx. Profit: <span id="approxInvestmentProfit" class="formatted-number font-weight-bold" data-number-to-format="@Model.InvestedProfits" data-number-format-style="$0.0a"></span>
+                        </p>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Investment Expiration</th>
+                                    <th scope="col">Investment Amount</th>
+                                    <th scope="col">Investment Percent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Investments)
+                                {
+                                    <tr>
+                                        <td>@item.InvestmentExpiration.Date.ToString("MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture)</td>
+                                        <td>
+                                            <span class="formatted-number" data-number-to-format="@item.InvestmentAmount" data-number-format-style="$0a"></span>
+                                        </td>
+                                        <td>
+                                            <span class="formatted-number" data-number-to-format="@((item.InvestmentAmount / item.InvestedBusinessCashPerSecondAtInvestment) < 100 ? (item.InvestmentAmount / item.InvestedBusinessCashPerSecondAtInvestment) : 1)" data-number-format-style="0.00%"></span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col mt-5">
+        <div class="row"><h2>Espionage</h2></div>
+        <div class="row">
+            @if (Model.Business.MaxEmployeeAmount >= 70)
+            {
+                <form asp-controller="Business" asp-action="CommitEspionage" asp-route-companyToEspionageId="@Model.Business.Id" method="post">
+                    <div class="card mr-2" style="width: 24rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Commit Espionage against @Model.Business.Name</h5>
+                            <p class="card-subtitle mb-2">
+                                Cost: $10,000 (<span class="formatted-number" data-number-to-format="@Model.CurrentEntrepreneur.Business.Cash"></span>)
+                            </p>
+                            <p class="card-subtitle mb-2">
+                                Chance of success: <span class="font-weight-bold formatted-number" data-number-to-format="@(Model.CurrentEntrepreneur.Business.EspionageChance - Model.Business.EspionageDefense)" data-number-format-style="0%"></span>
+                            </p>
+                            <p class="card-subtitle mb-2 text-muted">If espionage is successful, @Model.Business.Name will lose half of it's current CPS for one day. @Model.Business.Name will also gain 5% espionage defense.</p>
+                            <button type="submit" class="btn btn-primary">Attempt Espionage</button>
+                        </div>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="card mr-2" style="width: 24rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Locked</h5>
+                        <p class="card-subtitle mb-2">
+                            Cannot espionage @Model.Business.Name until they have reached 70 employees
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#investmentAmount").on('input', (function () {
+                var currentCps = parseFloat($("#businessCashPerSecond").attr("data-number-to-format"));
+                var investmentAmount = parseInt($("#investmentAmount").val());
+                var investmentPercentage = investmentAmount / currentCps;
+                if (investmentPercentage > 1) investmentPercentage = 1;
+
+                $("#profitPercentage").attr("data-number-to-format", investmentPercentage).trigger('numberChange');
+            }));
+        });
+    </script>
+}

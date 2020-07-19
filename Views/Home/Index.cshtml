@@ -1,0 +1,314 @@
+﻿@model IdleBusiness.Views.Models.HomeIndexVM;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    @if (User.Identity.IsAuthenticated)
+    {
+        @if (Model.Business == null || Model.Business.Name == null)
+        {
+            <div class="col-4">
+                <h2>Create your business</h2>
+                <form asp-controller="Home" asp-action="CreateBusiness" method="post">
+                    <div class="form-group">
+                        <label for="businessName">Business Name</label>
+                        <input type="text" class="form-control" id="businessName" name="businessName">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Business!</button>
+                </form>
+            </div>
+        }
+        else if (Model.Business.Sector == null && Model.Business.LifeTimeEarnings > 10000000)
+        {
+            <div class="col-4">
+                <h2>Add a sector!</h2>
+                <form asp-controller="Home" asp-action="AddSectorToBusiness" method="post">
+                    <div class="form-group">
+                        <label for="businessProduct">Your business sector</label>
+                        <input name="businessId" value="@Model.Business.Id" hidden />
+                        <select class="form-control" id="businessSector" name="businessSector" asp-items="Model.AvailableSectors"></select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add a sector</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="col-6">
+                <div class="row">
+                    <h2>@Model.Business.Name</h2>
+                </div>
+
+                <div class="row">
+                    <div class="col pr-1">
+                        <ul class="list-group">
+                            <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.CurrentCash"></span></li>
+                            <li class="list-group-item">Cash per second: $<span id="businessCashPerSecond">@Model.Business.CashPerSecond</span></li>
+                            <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance">@(Model.Business.EspionageChance * 100)</span>%</li>
+                            <li class="list-group-item">Espionage Defense: <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
+                        </ul>
+                    </div>
+
+                    <div class="col pl-0">
+                        <ul class="list-group">
+                            <li class="list-group-item">Lifetime Earnings: <span id="businessLifeTimeEarnings" class="formatted-number" data-number-to-format="@Model.Business.LifeTimeEarnings" data-number-format-style="($0.0a)"></span></li>
+                            <li class="list-group-item">Employees: <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees">@(Model.Business.MaxEmployeeAmount)</span></li>
+                            <li class="list-group-item">Items: <span id="businessTotalItemsOwned">@Model.Business.AmountOwnedItems</span>/<span id="businessMaxAmountItemsAllowed">@(Model.Business.MaxItemAmount)</span></li>
+                            @if (Model.Business.Sector != null)
+                            {
+                                <li class="list-group-item">Sector: @Model.Business.Sector.Description</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                @if (Model.HasSeekingAlphaItem)
+                {
+                    <div class="row mt-2">
+                        <div class="col">
+                            <ul class="list-group">
+                                <li class="list-group-item">Investments in you: @Model.TotalInvestmentsInCompany</li>
+                            </ul>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-4">
+            <h2>Register To Play</h2>
+            <a asp-area="Identity" asp-page="/Account/Register">Create an account</a> or <a asp-action="CreateGuestAccount" asp-controller="Home">continue as a guest</a> to start building your business empire
+        </div>
+    }
+
+    <div class="col"></div>
+
+    <div class="col-5">
+        <h2>Most Successful Businesses</h2>
+        <ul class="list-group">
+            @foreach (var item in Model.MostSuccessfulBusinesses)
+            {
+                <li class="list-group-item">
+                    <a asp-controller="Business" asp-action="Index" asp-route-id="@item.Id">@item.Name - <span class="formatted-number" data-number-to-format="@item.Cash" data-number-format-style="($0.00a)"></span></a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+@if (User.Identity.IsAuthenticated && !string.IsNullOrEmpty(Model.Business?.Name))
+{
+    <div class="row mt-5">
+        <div class="col">
+            <div class="row">
+                <h2>Employees</h2>
+            </div>
+            <div class="row overflow-auto" style="max-height: 24rem;">
+                @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 1))
+                {
+                    <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                }
+            </div>
+
+            <div class="row mt-5">
+                <h2>Items</h2>
+            </div>
+            <div class="row overflow-auto" style="max-height: 24rem;">
+                @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 2))
+                {
+                    <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                }
+            </div>
+
+            @if (Model.Purchasables.Any(s => s.Type.Id == 3))
+            {
+                <div class="row mt-5">
+                    <h2>Real Estate</h2>
+                </div>
+                <div class="row overflow-auto" style="max-height: 24rem;">
+                    @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 3))
+                    {
+                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var purchaseCount = 0;
+            var currentCash = 0;
+            var cashToSub = 0;
+            var totalEmployed = 0;
+            var totalItemsOwned = 0;
+
+            var isPurchaseValid = false;
+
+            function CheckIfPurchaseIsValid(button) {
+                totalEmployed = parseInt($("#businessTotalEmployed").text());
+                totalItemsOwned = parseInt($("#businessTotalItemsOwned").text());
+                currentCash = parseInt($("#businessCurrentCash").attr("data-number-to-format"));
+                cashToSub = parseInt(button.getAttribute("data-purchase-item-adjusted-cost"));
+                if (cashToSub > currentCash) { return false; }
+
+                if (button.getAttribute("data-purchase-item-type") == 1) {
+                    var maxEmployees = parseInt($("#businessMaxEmployees").text());
+                    if (totalEmployed >= maxEmployees) { return false; }
+                }
+                if (button.getAttribute("data-purchase-item-type") == 2) {
+                    var maxItems = parseInt($("#businessMaxAmountItemsAllowed").text());
+                    if (totalItemsOwned >= maxItems + parseInt(button.getAttribute("data-purchase-item-maxItemMod"))) { return false; }
+                }
+
+                return true;
+            }
+
+
+            $('[data-purchase-item-id]').click(function () {
+                isPurchaseValid = CheckIfPurchaseIsValid(this);
+                if (!isPurchaseValid) { return };
+
+                var purchaseId = this.getAttribute("data-purchase-item-id");
+
+                var currentCps = parseInt($("#businessCashPerSecond").text());
+                var cpsIncrease = parseInt(this.getAttribute("data-purchase-item-cps"));
+
+                var currentCost = parseFloat($("#purchase-item-" + this.getAttribute("data-purchase-item-id") + "-cost").attr("data-number-to-format"));
+                var adjustedItemCost = (currentCost += parseFloat((currentCost * parseFloat(this.getAttribute("data-purchase-item-PerOwned"))))).toFixed(2);
+                $("#purchase-item-" + this.getAttribute("data-purchase-item-id") + "-cost").attr("data-number-to-format", adjustedItemCost).trigger('numberChange');
+                this.setAttribute("data-purchase-item-adjusted-cost", adjustedItemCost);
+
+                purchaseCount++;
+
+                $("#businessCurrentCash").attr("data-number-to-format", (currentCash - cashToSub)).trigger('numberChange');
+                $("#businessCashPerSecond").text(currentCps + cpsIncrease);
+                var espDefense = parseFloat($("#businessEspionageDefense").attr("data-number-to-format"));
+                $("#businessEspionageDefense").attr("data-number-to-format", espDefense + parseFloat(this.getAttribute("data-purchase-item-espDefenseMod"))).trigger('numberChange');
+
+                var espionageIncrease = parseFloat(this.getAttribute("data-purchase-item-ei"));
+                if (!Number.isNaN(espionageIncrease)) {
+                    var currentEspionage = parseFloat($("#businessEspionageChance").text()) / 100;
+                    $("#businessEspionageChance").text(parseFloat((currentEspionage + espionageIncrease) * 100).toFixed(2));
+                }
+
+                if (this.getAttribute("data-purchase-item-type") == 3) {
+                    $("#businessMaxEmployees").text(parseInt(this.getAttribute("data-purchase-item-maxEmployeeMod")) + parseInt($("#businessTotalEmployed").text()));
+                }
+                if (this.getAttribute("data-purchase-item-type") == 2) {
+                    $("#businessTotalItemsOwned").text(totalItemsOwned += 1);
+                    var maxItemAmount = parseInt($("#businessMaxAmountItemsAllowed").text());
+                    var maxItemMod = parseInt(this.getAttribute("data-purchase-item-maxItemMod"));
+                    $("#businessMaxAmountItemsAllowed").text(maxItemAmount + maxItemMod)
+                }
+                if (this.getAttribute("data-purchase-item-type") == 1) {
+                    $("#businessTotalEmployed").text(totalEmployed += 1);
+                }
+
+                var amountOfItemsPurchased = $("#amountOfItemsPurchased-item-" + $(this).attr("data-purchase-item-id"));
+                amountOfItemsPurchased.text(parseInt(amountOfItemsPurchased.text()) + 1);
+
+                disableUnavailablePurchases();
+            });
+
+            $('[data-purchase-item-id]').click(debounce(function () {
+                var purchasableId = this.getAttribute("data-purchase-item-id");
+                var adjustedPurchaseCost = this.getAttribute("data-purchase-item-adjusted-cost");
+
+                $.ajax({
+                    url: "/home/UpdateBusinessCash",
+                    type: "POST",
+                    data: {
+                        "purchasableId": purchasableId,
+                        "purchaseCount": purchaseCount,
+                        "adjustedPurchaseCost": adjustedPurchaseCost
+                    },
+                    headers: {
+                    },
+                    success: function (data) {
+                    },
+                    error: function (data) {
+                        console.log(data);
+                    }
+                });
+            }, 250));
+        });
+    </script>
+
+    <script type="text/javascript">
+        function disableUnavailablePurchases() {
+            var items = $("[data-purchase-item-id]");
+            var currentCash = parseFloat($("#businessCurrentCash").attr("data-number-to-format"));
+            items.each(function () {
+                var itemCost = parseFloat($(this).attr("data-purchase-item-adjusted-cost"));
+                var itemId = $(this).attr("data-purchase-item-id");
+                var isSinglePurchase = $(this).attr("data-purchase-item-isSinglePurchase") == "True";
+                var amountOwned = parseInt($(this).attr("data-purchase-item-amountOwned"));
+                if (currentCash < itemCost) { $("#purchase-item-" + itemId).addClass("disabled-card"); }
+                else if (isSinglePurchase && amountOwned >= 1) { $("#purchase-item-" + itemId).addClass("disabled-card"); }
+                else { $("#purchase-item-" + itemId).removeClass("disabled-card"); }
+            });
+        }
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#purchase-item-1").show(500);
+            var cashpersecond = parseFloat($("#businessCashPerSecond").text());
+
+            setInterval(function () {
+                disableUnavailablePurchases();
+
+                var current = parseFloat($("#businessCurrentCash").attr("data-number-to-format"));
+                var newTotal = current + cashpersecond;
+                $("#businessCurrentCash").attr("data-number-to-format", newTotal).trigger('numberChange');
+
+                cashpersecond = parseInt($("#businessCashPerSecond").text());
+            }, 1000);
+
+            function displayUnlockedPurchables() {
+                var items = $("[data-purchase-item-id]");
+                var lifeTime = parseFloat($("#businessLifeTimeEarnings").attr("data-number-to-format"));
+                var newTotal = lifeTime + (cashpersecond * 10);
+                $("#businessLifeTimeEarnings").attr("data-number-to-format", newTotal).trigger('numberChange');
+                items.each(function () {
+                    var unlockPrice = parseFloat($(this).attr("data-purchase-item-unlocksatprice"));
+                    var currentLifetimeEarnings = lifeTime;
+                    var itemId = $(this).attr("data-purchase-item-id");
+                    if (currentLifetimeEarnings > unlockPrice) {
+                        $("#purchase-item-" + itemId).show(500);
+                    }
+                });
+            }
+            displayUnlockedPurchables();
+            setInterval(function () {
+                displayUnlockedPurchables();
+            }, 10000);
+        });
+    </script>
+
+    <script type="text/javascript">
+        function debounce(func, wait, immediate) {
+            var timeout;
+            return function () {
+                var context = this, args = arguments;
+                var later = function () {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
+    </script>
+}
