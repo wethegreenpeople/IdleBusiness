@@ -33,12 +33,10 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: Publish
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
   inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(BuildConfiguration) --output "$(build.artifactstagingdirectory)"'
+    PathtoPublish: '$(build.artifactstagingdirectory)'
     
 - task: AzureRmWebAppDeployment@4
   inputs:
