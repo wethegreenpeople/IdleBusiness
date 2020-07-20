@@ -3,6 +3,7 @@ using IdleBusiness.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,7 +36,7 @@ namespace IdleBusiness.Helpers
             if (business.LifeTimeEarnings < business.Cash) business.LifeTimeEarnings = business.Cash;
             business.LifeTimeEarnings += gains;
             business.LastCheckIn = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            await ApplicationHelper.TrySaveChangesConcurrentAsync(_context);
 
             return business;
         }

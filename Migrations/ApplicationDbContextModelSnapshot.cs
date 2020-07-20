@@ -59,6 +59,11 @@ namespace IdleBusiness.Migrations
                     b.Property<string>("Product")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<DateTime?>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp(6)");
+
                     b.Property<int?>("SectorId")
                         .HasColumnType("int");
 

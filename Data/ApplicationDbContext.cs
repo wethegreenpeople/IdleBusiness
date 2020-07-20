@@ -63,6 +63,10 @@ namespace IdleBusiness.Data
                 .WithMany(s => s.Purchasables)
                 .HasForeignKey(s => s.PurchasableTypeId);
 
+            modelBuilder.Entity<Business>()
+                .Property(s => s.RowVersion)
+                .IsRowVersion();
+
             base.OnModelCreating(modelBuilder);
         }
     }

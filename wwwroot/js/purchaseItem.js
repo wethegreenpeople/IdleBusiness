@@ -132,6 +132,7 @@ function ServerPurchaseItem() {
             },
             error: function (data) {
                 console.log(data);
+                window.location.href = "/";
             },
         });
 

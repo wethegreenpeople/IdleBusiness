@@ -21,6 +21,7 @@ namespace IdleBusiness.Models
         public int AmountEmployed { get; set; }
         public int MaxItemAmount { get; set; }
         public int AmountOwnedItems { get; set; }
+        public byte[] RowVersion { get; set; }
 
 
         public virtual Sector Sector { get; set; }

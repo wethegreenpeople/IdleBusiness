@@ -133,8 +133,7 @@ namespace IdleBusiness.Controllers
             if (purchasable.IsGlobalPurchase)
                 await _purchasableHelper.ApplyGlobalPurchaseBonus(purchasable, user.Business);
 
-            await _context.SaveChangesAsync();
-
+            if (!await ApplicationHelper.TrySaveChangesConcurrentAsync(_context)) return StatusCode(500);
             return Ok();
         }
 
