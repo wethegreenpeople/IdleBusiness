@@ -143,121 +143,7 @@
 
 @section Scripts
 {
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var purchaseCount = 0;
-            var currentCash = 0;
-            var cashToSub = 0;
-            var totalEmployed = 0;
-            var totalItemsOwned = 0;
-
-            var isPurchaseValid = false;
-
-            function CheckIfPurchaseIsValid(button) {
-                totalEmployed = parseInt($("#businessTotalEmployed").text());
-                totalItemsOwned = parseInt($("#businessTotalItemsOwned").text());
-                currentCash = parseInt($("#businessCurrentCash").attr("data-number-to-format"));
-                cashToSub = parseInt(button.getAttribute("data-purchase-item-adjusted-cost"));
-                if (cashToSub > currentCash) { return false; }
-
-                if (button.getAttribute("data-purchase-item-type") == 1) {
-                    var maxEmployees = parseInt($("#businessMaxEmployees").text());
-                    if (totalEmployed >= maxEmployees) { return false; }
-                }
-                if (button.getAttribute("data-purchase-item-type") == 2) {
-                    var maxItems = parseInt($("#businessMaxAmountItemsAllowed").text());
-                    if (totalItemsOwned >= maxItems + parseInt(button.getAttribute("data-purchase-item-maxItemMod"))) { return false; }
-                }
-
-                return true;
-            }
-
-
-            $('[data-purchase-item-id]').click(function () {
-                isPurchaseValid = CheckIfPurchaseIsValid(this);
-                if (!isPurchaseValid) { return };
-
-                var purchaseId = this.getAttribute("data-purchase-item-id");
-
-                var currentCps = parseInt($("#businessCashPerSecond").text());
-                var cpsIncrease = parseInt(this.getAttribute("data-purchase-item-cps"));
-
-                var currentCost = parseFloat($("#purchase-item-" + this.getAttribute("data-purchase-item-id") + "-cost").attr("data-number-to-format"));
-                var adjustedItemCost = (currentCost += parseFloat((currentCost * parseFloat(this.getAttribute("data-purchase-item-PerOwned"))))).toFixed(2);
-                $("#purchase-item-" + this.getAttribute("data-purchase-item-id") + "-cost").attr("data-number-to-format", adjustedItemCost).trigger('numberChange');
-                this.setAttribute("data-purchase-item-adjusted-cost", adjustedItemCost);
-
-                purchaseCount++;
-
-                $("#businessCurrentCash").attr("data-number-to-format", (currentCash - cashToSub)).trigger('numberChange');
-                $("#businessCashPerSecond").text(currentCps + cpsIncrease);
-                var espDefense = parseFloat($("#businessEspionageDefense").attr("data-number-to-format"));
-                $("#businessEspionageDefense").attr("data-number-to-format", espDefense + parseFloat(this.getAttribute("data-purchase-item-espDefenseMod"))).trigger('numberChange');
-
-                var espionageIncrease = parseFloat(this.getAttribute("data-purchase-item-ei"));
-                if (!Number.isNaN(espionageIncrease)) {
-                    var currentEspionage = parseFloat($("#businessEspionageChance").text()) / 100;
-                    $("#businessEspionageChance").text(parseFloat((currentEspionage + espionageIncrease) * 100).toFixed(2));
-                }
-
-                if (this.getAttribute("data-purchase-item-type") == 3) {
-                    $("#businessMaxEmployees").text(parseInt(this.getAttribute("data-purchase-item-maxEmployeeMod")) + parseInt($("#businessTotalEmployed").text()));
-                }
-                if (this.getAttribute("data-purchase-item-type") == 2) {
-                    $("#businessTotalItemsOwned").text(totalItemsOwned += 1);
-                    var maxItemAmount = parseInt($("#businessMaxAmountItemsAllowed").text());
-                    var maxItemMod = parseInt(this.getAttribute("data-purchase-item-maxItemMod"));
-                    $("#businessMaxAmountItemsAllowed").text(maxItemAmount + maxItemMod)
-                }
-                if (this.getAttribute("data-purchase-item-type") == 1) {
-                    $("#businessTotalEmployed").text(totalEmployed += 1);
-                }
-
-                var amountOfItemsPurchased = $("#amountOfItemsPurchased-item-" + $(this).attr("data-purchase-item-id"));
-                amountOfItemsPurchased.text(parseInt(amountOfItemsPurchased.text()) + 1);
-
-                disableUnavailablePurchases();
-            });
-
-            $('[data-purchase-item-id]').click(debounce(function () {
-                var purchasableId = this.getAttribute("data-purchase-item-id");
-                var adjustedPurchaseCost = this.getAttribute("data-purchase-item-adjusted-cost");
-
-                $.ajax({
-                    url: "/home/UpdateBusinessCash",
-                    type: "POST",
-                    data: {
-                        "purchasableId": purchasableId,
-                        "purchaseCount": purchaseCount,
-                        "adjustedPurchaseCost": adjustedPurchaseCost
-                    },
-                    headers: {
-                    },
-                    success: function (data) {
-                    },
-                    error: function (data) {
-                        console.log(data);
-                    }
-                });
-            }, 250));
-        });
-    </script>
-
-    <script type="text/javascript">
-        function disableUnavailablePurchases() {
-            var items = $("[data-purchase-item-id]");
-            var currentCash = parseFloat($("#businessCurrentCash").attr("data-number-to-format"));
-            items.each(function () {
-                var itemCost = parseFloat($(this).attr("data-purchase-item-adjusted-cost"));
-                var itemId = $(this).attr("data-purchase-item-id");
-                var isSinglePurchase = $(this).attr("data-purchase-item-isSinglePurchase") == "True";
-                var amountOwned = parseInt($(this).attr("data-purchase-item-amountOwned"));
-                if (currentCash < itemCost) { $("#purchase-item-" + itemId).addClass("disabled-card"); }
-                else if (isSinglePurchase && amountOwned >= 1) { $("#purchase-item-" + itemId).addClass("disabled-card"); }
-                else { $("#purchase-item-" + itemId).removeClass("disabled-card"); }
-            });
-        }
-    </script>
+    <script type="text/javascript" src="~/js/purchaseItem.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -265,7 +151,7 @@
             var cashpersecond = parseFloat($("#businessCashPerSecond").text());
 
             setInterval(function () {
-                disableUnavailablePurchases();
+                DisableUnavailablePurchases();
 
                 var current = parseFloat($("#businessCurrentCash").attr("data-number-to-format"));
                 var newTotal = current + cashpersecond;
@@ -295,20 +181,5 @@
         });
     </script>
 
-    <script type="text/javascript">
-        function debounce(func, wait, immediate) {
-            var timeout;
-            return function () {
-                var context = this, args = arguments;
-                var later = function () {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
-        };
-    </script>
+    <script type="text/javascript" src="~/js/debounce.js"></script>
 }

@@ -80,7 +80,7 @@ namespace IdleBusiness.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateBusinessCash(int purchasableId, int purchaseCount, float adjustedPurchaseCost)
+        public async Task<IActionResult> PurchaseItem(int purchasableId, int purchaseCount)
         {
             var user = await GetCurrentEntrepreneur();
             var purchasable =  (await _context.Purchasables

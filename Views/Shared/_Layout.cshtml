@@ -48,22 +48,6 @@
     <script type="text/javascript" src="//cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/numeral.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $(".formatted-number").on('numberChange', function () {
-                var numberToFormat = $(this).attr("data-number-to-format");
-                var formatStyle = $(this).attr("data-number-format-style")
-                if (formatStyle != null) {
-                    $(this).text(numeral(numberToFormat).format(formatStyle));
-                }
-                else {
-                    $(this).text(numeral(numberToFormat).format('$0.000a'));
-                }
-            });
-
-            $(".formatted-number").trigger('numberChange');
-        });
-    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
