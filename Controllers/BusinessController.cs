@@ -11,6 +11,7 @@ using IdleBusiness.Views.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace IdleBusiness.Controllers
 {
@@ -18,11 +19,13 @@ namespace IdleBusiness.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly BusinessHelper _businessHelper;
+        private readonly ILogger<BusinessController> _logger;
 
-        public BusinessController(ApplicationDbContext context)
+        public BusinessController(ApplicationDbContext context, ILogger<BusinessController> logger)
         {
             _context = context;
-            _businessHelper = new BusinessHelper(context);
+            _logger = logger;
+            _businessHelper = new BusinessHelper(context, _logger);
         }
 
         [Authorize]

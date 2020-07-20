@@ -1,6 +1,7 @@
 ﻿using IdleBusiness.Data;
 using IdleBusiness.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,10 +13,14 @@ namespace IdleBusiness.Helpers
     public class BusinessHelper
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger _logger;
+        private readonly ApplicationHelper _appHelper;
 
-        public BusinessHelper(ApplicationDbContext context)
+        public BusinessHelper(ApplicationDbContext context, ILogger logger)
         {
             _context = context;
+            _logger = logger;
+            _appHelper = new ApplicationHelper(_logger);
         }
 
         public async Task<float> CalculateGainsSinceLastCheckIn(int businessId)
@@ -36,7 +41,7 @@ namespace IdleBusiness.Helpers
             if (business.LifeTimeEarnings < business.Cash) business.LifeTimeEarnings = business.Cash;
             business.LifeTimeEarnings += gains;
             business.LastCheckIn = DateTime.UtcNow;
-            await ApplicationHelper.TrySaveChangesConcurrentAsync(_context);
+            await _appHelper.TrySaveChangesConcurrentAsync(_context);
 
             return business;
         }

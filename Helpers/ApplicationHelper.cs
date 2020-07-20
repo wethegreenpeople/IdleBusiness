@@ -1,5 +1,6 @@
 ﻿using IdleBusiness.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,7 +11,13 @@ namespace IdleBusiness.Helpers
 {
     public class ApplicationHelper
     {
-        public static async Task<bool> TrySaveChangesConcurrentAsync(ApplicationDbContext context)
+        private readonly ILogger _logger;
+        public ApplicationHelper(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public async Task<bool> TrySaveChangesConcurrentAsync(ApplicationDbContext context)
         {
             try
             {
@@ -18,7 +25,9 @@ namespace IdleBusiness.Helpers
                 return true;
             }
             catch (DbUpdateConcurrencyException ex)
-            { }
+            {
+                _logger.LogError(ex, "Concurrency issue");
+            }
 
             return false;
         }

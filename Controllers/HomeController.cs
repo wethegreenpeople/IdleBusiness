@@ -25,15 +25,17 @@ namespace IdleBusiness.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly BusinessHelper _businessHelper;
         private readonly PurchasableHelper _purchasableHelper;
+        private readonly ApplicationHelper _appHelper;
 
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
             _logger = logger;
             _context = context;
             _userManager = userManager;
-            _businessHelper = new BusinessHelper(_context);
+            _businessHelper = new BusinessHelper(_context, _logger);
             _purchasableHelper = new PurchasableHelper(_context);
             _signInManager = signInManager;
+            _appHelper = new ApplicationHelper(_logger);
         }
 
         public async Task<IActionResult> Index()
@@ -134,7 +136,7 @@ namespace IdleBusiness.Controllers
             if (purchasable.IsGlobalPurchase)
                 await _purchasableHelper.ApplyGlobalPurchaseBonus(purchasable, user.Business);
 
-            if (!await ApplicationHelper.TrySaveChangesConcurrentAsync(_context)) return StatusCode(500);
+            if (!await _appHelper.TrySaveChangesConcurrentAsync(_context)) return StatusCode(500);
             return Ok();
         }
 
