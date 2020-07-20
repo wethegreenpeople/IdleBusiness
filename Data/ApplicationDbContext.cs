@@ -17,6 +17,7 @@ namespace IdleBusiness.Data
         public virtual DbSet<PurchasableType> PurchasableTypes { get; set; }
         public virtual DbSet<Investment> Investments { get; set; }
         public virtual DbSet<Sector> Sectors { get; set; }
+        public virtual DbSet<Log> Logs { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

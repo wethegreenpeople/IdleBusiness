@@ -65,6 +65,7 @@ namespace IdleBusiness.Controllers
 
             if (user != null && user.Business != null) viewModel.PurchasedItems = user.Business.BusinessPurchases.Select(s => (s.Purchase, s.AmountOfPurchases)).ToList();
 
+            _logger.LogInformation("Business {Business} loaded", user.Business);
             return View(viewModel);
         }
 
