@@ -58,6 +58,15 @@ namespace IdleBusiness.Helpers
             return purchase;
         }
 
+        public static Purchasable SwapPurchaseForUpgradeIfAlreadyBought(Purchasable purchase, Business business)
+        {
+            if (purchase.PurchasableUpgrade == null) return purchase;
+            if (business.BusinessPurchases.Any(s => s.Purchase.Id == purchase.Id)) 
+                return SwapPurchaseForUpgradeIfAlreadyBought(purchase.PurchasableUpgrade, business);
+
+            return purchase;
+        }
+
         public static bool EnsurePurchaseIsValid(Purchasable purchase, Business business, int purchaseCount)
         {
             switch (purchase.Type.Id)

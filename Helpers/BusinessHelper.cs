@@ -50,6 +50,7 @@ namespace IdleBusiness.Helpers
         {
             return await _context.Investments
                 .Where(s => s.BusinessToInvest.Id == businessId)
+                .Include(s => s.InvestingBusiness)
                 .ToListAsync();
         }
     }

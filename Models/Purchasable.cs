@@ -20,10 +20,14 @@ namespace IdleBusiness.Models
         public float UnlocksAtTotalEarnings { get; set; }
         public bool IsSinglePurchase { get; set; }
         public bool IsGlobalPurchase { get; set; }
+        public bool IsUpgrade { get; set; }
 
         public virtual ICollection<BusinessPurchase> BusinessPurchases { get; set; }
 
         public int PurchasableTypeId { get; set; }
         public virtual PurchasableType Type { get; set; }
+
+        public int PurchasableUpgradeId { get; set; }
+        public virtual Purchasable PurchasableUpgrade { get; set;  }
     }
 }

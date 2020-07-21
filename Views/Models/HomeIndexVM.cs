@@ -15,12 +15,14 @@ namespace IdleBusiness.Views.Models
         public List<Purchasable> Purchasables { get; set; }
         public List<(Purchasable purchasable, int amount)> PurchasedItems { get; set; }
         public List<SelectListItem> AvailableSectors { get; set; }
-        public string TotalInvestmentsInCompany { get; set; }
+        public List<Investment> InvestmentsInBusiness { get; set; }
 
+        public string TotalInvestmentsInCompany => InvestmentsInBusiness?.Count.ToString();
         public string CurrentCash => Business.Cash.ToString();
         public string TotalEmployed => Business.AmountEmployed.ToString();
 
         public bool HasSeekingAlphaItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 25).amount > 0;
+        public bool HasSeekingAlphaProItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 26).amount > 0;
 
         public float? AdjustedPurchasableCost(int purchasableId)
         {

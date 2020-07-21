@@ -70,7 +70,26 @@
                     <div class="row mt-2">
                         <div class="col">
                             <ul class="list-group">
-                                <li class="list-group-item">Investments in you: @Model.TotalInvestmentsInCompany</li>
+                                @if (Model.HasSeekingAlphaProItem)
+                                {
+                                    <li class="list-group-item">
+                                        Investments in you: <a href="#collapseExample" data-toggle="collapse">@Model.TotalInvestmentsInCompany</a>
+                                        <div class="collapse" id="collapseExample">
+                                            <ul class="list-group list-group-flush">
+                                                @foreach (var item in Model.InvestmentsInBusiness)
+                                                {
+                                                <li class="list-group-item">
+                                                    <a asp-controller="Business" asp-action="Index" asp-route-id="@item.InvestingBusinessId">@item.InvestingBusiness.Name</a>
+                                                </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="list-group-item">Investments in you: @Model.TotalInvestmentsInCompany</li>
+                                }
                             </ul>
                         </div>
                     </div>

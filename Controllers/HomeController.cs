@@ -53,12 +53,16 @@ namespace IdleBusiness.Controllers
 
                     viewModel.Purchasables = _context
                         .Purchasables
+                        .Where(s => !s.IsUpgrade)
                         .Include(s => s.Type)
+                        .Include(s => s.PurchasableUpgrade)
+                            .ThenInclude(s => s.PurchasableUpgrade) // Hard locks us into X number of upgrades, but I'm not sure of a better wya to accomplish this right now
                         .OrderBy(s => s.UnlocksAtTotalEarnings)
+                        .Select(s => PurchasableHelper.SwapPurchaseForUpgradeIfAlreadyBought(s, user.Business))
                         .Select(s => PurchasableHelper.AdjustPurchasableCostWithSectorBonus(s, user.Business))
                         .ToList();
 
-                    viewModel.TotalInvestmentsInCompany = (await _businessHelper.GetInvestmentsInCompany(business.Id)).Count.ToString();
+                    viewModel.InvestmentsInBusiness = await _businessHelper.GetInvestmentsInCompany(business.Id);
                 }
             }
 
@@ -67,7 +71,6 @@ namespace IdleBusiness.Controllers
 
             if (user != null && user.Business != null) viewModel.PurchasedItems = user.Business.BusinessPurchases.Select(s => (s.Purchase, s.AmountOfPurchases)).ToList();
 
-            _logger.LogInformation("Business {Business} loaded", user.Business);
             return View(viewModel);
         }
 
@@ -79,6 +82,7 @@ namespace IdleBusiness.Controllers
             _context.Entrepreneurs.Update(user);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("Created new business: {businessName} - {businessId}", user.Business.Name, user.Business.Id);
             return RedirectToAction("Index");
         }
 

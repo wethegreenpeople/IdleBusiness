@@ -68,6 +68,11 @@ namespace IdleBusiness.Data
                 .Property(s => s.RowVersion)
                 .IsRowVersion();
 
+            modelBuilder.Entity<Purchasable>()
+                .HasOne(s => s.PurchasableUpgrade)
+                .WithOne()
+                .IsRequired(false);
+
             base.OnModelCreating(modelBuilder);
         }
     }

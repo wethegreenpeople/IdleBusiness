@@ -187,6 +187,9 @@ namespace IdleBusiness.Migrations
                     b.Property<bool>("IsSinglePurchase")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsUpgrade")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("MaxEmployeeModifier")
                         .HasColumnType("int");
 
@@ -202,12 +205,17 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("PurchasableTypeId")
                         .HasColumnType("int");
 
+                    b.Property<int>("PurchasableUpgradeId")
+                        .HasColumnType("int");
+
                     b.Property<float>("UnlocksAtTotalEarnings")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PurchasableTypeId");
+
+                    b.HasIndex("PurchasableUpgradeId");
 
                     b.ToTable("Purchasables");
                 });
@@ -500,6 +508,12 @@ namespace IdleBusiness.Migrations
                     b.HasOne("IdleBusiness.Models.PurchasableType", "Type")
                         .WithMany("Purchasables")
                         .HasForeignKey("PurchasableTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdleBusiness.Models.Purchasable", "PurchasableUpgrade")
+                        .WithMany()
+                        .HasForeignKey("PurchasableUpgradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
