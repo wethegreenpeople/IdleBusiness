@@ -40,6 +40,17 @@ namespace IdleBusiness.Helpers
             business.Cash += gains;
             if (business.LifeTimeEarnings < business.Cash) business.LifeTimeEarnings = business.Cash;
             business.LifeTimeEarnings += gains;
+
+            if ((DateTime.UtcNow - business.LastCheckIn).TotalHours > 8)
+            {
+                business.ReceivedMessages.Add(new Message()
+                {
+                    DateReceived = DateTime.UtcNow,
+                    MessageBody = $"You've gained {gains} since you last visited on {business.LastCheckIn}",
+                    ReceivingBusinessId = business.Id,
+                });
+            }
+
             business.LastCheckIn = DateTime.UtcNow;
             await _appHelper.TrySaveChangesConcurrentAsync(_context);
 
