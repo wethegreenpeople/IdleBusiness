@@ -29,8 +29,8 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("AmountOwnedItems")
                         .HasColumnType("int");
 
-                    b.Property<float>("Cash")
-                        .HasColumnType("float");
+                    b.Property<double>("Cash")
+                        .HasColumnType("double");
 
                     b.Property<float>("CashPerSecond")
                         .HasColumnType("float");
@@ -44,8 +44,8 @@ namespace IdleBusiness.Migrations
                     b.Property<DateTime>("LastCheckIn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<float>("LifeTimeEarnings")
-                        .HasColumnType("float");
+                    b.Property<double>("LifeTimeEarnings")
+                        .HasColumnType("double");
 
                     b.Property<int>("MaxEmployeeAmount")
                         .HasColumnType("int");
@@ -101,8 +101,8 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("BusinessToInvestId")
                         .HasColumnType("int");
 
-                    b.Property<float>("InvestedBusinessCashAtInvestment")
-                        .HasColumnType("float");
+                    b.Property<double>("InvestedBusinessCashAtInvestment")
+                        .HasColumnType("double");
 
                     b.Property<float>("InvestedBusinessCashPerSecondAtInvestment")
                         .HasColumnType("float");
@@ -160,6 +160,36 @@ namespace IdleBusiness.Migrations
                     b.ToTable("Logs");
                 });
 
+            modelBuilder.Entity("IdleBusiness.Models.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateReceived")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MessageBody")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("ReadByBusiness")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("ReceivingBusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SendingBusinessId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceivingBusinessId");
+
+                    b.HasIndex("SendingBusinessId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("IdleBusiness.Models.Purchasable", b =>
                 {
                     b.Property<int>("Id")
@@ -215,7 +245,8 @@ namespace IdleBusiness.Migrations
 
                     b.HasIndex("PurchasableTypeId");
 
-                    b.HasIndex("PurchasableUpgradeId");
+                    b.HasIndex("PurchasableUpgradeId")
+                        .IsUnique();
 
                     b.ToTable("Purchasables");
                 });
@@ -503,6 +534,17 @@ namespace IdleBusiness.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("IdleBusiness.Models.Message", b =>
+                {
+                    b.HasOne("IdleBusiness.Models.Business", "ReceivingBusiness")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("ReceivingBusinessId");
+
+                    b.HasOne("IdleBusiness.Models.Business", "SendingBusiness")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("SendingBusinessId");
+                });
+
             modelBuilder.Entity("IdleBusiness.Models.Purchasable", b =>
                 {
                     b.HasOne("IdleBusiness.Models.PurchasableType", "Type")
@@ -512,10 +554,8 @@ namespace IdleBusiness.Migrations
                         .IsRequired();
 
                     b.HasOne("IdleBusiness.Models.Purchasable", "PurchasableUpgrade")
-                        .WithMany()
-                        .HasForeignKey("PurchasableUpgradeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithOne()
+                        .HasForeignKey("IdleBusiness.Models.Purchasable", "PurchasableUpgradeId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

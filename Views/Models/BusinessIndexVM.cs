@@ -12,7 +12,7 @@ namespace IdleBusiness.Views.Models
         public Entrepreneur CurrentEntrepreneur { get; set; }
         public bool HasCurrentEntrepreneurInvestedInBusiness { get; set; }
         public float TotalInvestedAmount { get; set; }
-        public float InvestedProfits { get; set; }
+        public double InvestedProfits { get; set; }
         public List<Investment> Investments { get; set; }
     }
 }

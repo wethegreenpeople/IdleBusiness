@@ -8,7 +8,7 @@ namespace IdleBusiness.Helpers
 {
     public class InvestmentHelper
     {
-        public static float CalculateInvestmentProfit(Investment investment)
+        public static double CalculateInvestmentProfit(Investment investment)
         {
             var investmentPercentage = (investment.InvestmentAmount / investment.InvestedBusinessCashPerSecondAtInvestment);
             if (investmentPercentage > 1) investmentPercentage = 1;

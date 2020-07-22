@@ -10,7 +10,7 @@ namespace IdleBusiness.Models
         public int Id { get; set; }
         public float InvestmentAmount { get; set; }
         public DateTime InvestmentExpiration { get; set; }
-        public float InvestedBusinessCashAtInvestment { get; set; }
+        public double InvestedBusinessCashAtInvestment { get; set; }
         public float InvestedBusinessCashPerSecondAtInvestment { get; set; }
         public InvestmentType InvestmentType { get; set; }
 

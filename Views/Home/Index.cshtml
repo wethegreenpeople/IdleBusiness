@@ -4,6 +4,8 @@
     ViewData["Title"] = "Home Page";
 }
 
+<span hidden id="unreadMessageAmount" data-message-amount="@Model.UnreadMessageAmount"></span>
+
 <div class="row">
     @if (User.Identity.IsAuthenticated)
     {
@@ -163,6 +165,17 @@
 @section Scripts
 {
     <script type="text/javascript" src="~/js/purchaseItem.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var messageAmount = parseInt($("#unreadMessageAmount").attr("data-message-amount"));
+            if (messageAmount > 0) {
+                $("#unreadMessageBadge").text(messageAmount);
+            }
+        });
+        unreadMessageBadge
+
+    </script>
 
     <script type="text/javascript">
         $(document).ready(function () {

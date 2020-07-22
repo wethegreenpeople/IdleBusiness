@@ -16,6 +16,14 @@
         <li class="nav-item">
             <span class="text-dark nav-link">Market Time: @DateTime.UtcNow.ToString("hh:mm tt")</span>
         </li>
+        @if (ViewBag.DisplayMessageBadge ?? false)
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Message" asp-action="Index">
+                    Messages: <span class="badge badge-primary" id="unreadMessageBadge">0</span>
+                </a>
+            </li>
+        }
     }
     else
     {

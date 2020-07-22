@@ -18,8 +18,9 @@ namespace IdleBusiness.Views.Models
         public List<Investment> InvestmentsInBusiness { get; set; }
 
         public string TotalInvestmentsInCompany => InvestmentsInBusiness?.Count.ToString();
-        public string CurrentCash => Business.Cash.ToString();
-        public string TotalEmployed => Business.AmountEmployed.ToString();
+        public string CurrentCash => Business?.Cash.ToString();
+        public string TotalEmployed => Business?.AmountEmployed.ToString();
+        public string UnreadMessageAmount => Business?.ReceivedMessages.Where(s => !s.ReadByBusiness).Count().ToString();
 
         public bool HasSeekingAlphaItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 25).amount > 0;
         public bool HasSeekingAlphaProItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 26).amount > 0;

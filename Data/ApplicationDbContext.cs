@@ -19,6 +19,7 @@ namespace IdleBusiness.Data
         public virtual DbSet<Investment> Investments { get; set; }
         public virtual DbSet<Sector> Sectors { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -60,11 +61,6 @@ namespace IdleBusiness.Data
                 .WithMany(s => s.Businesses)
                 .IsRequired(false);
 
-            modelBuilder.Entity<Purchasable>()
-                .HasOne(s => s.Type)
-                .WithMany(s => s.Purchasables)
-                .HasForeignKey(s => s.PurchasableTypeId);
-
             modelBuilder.Entity<Business>()
                 .Property(s => s.RowVersion)
                 .IsRowVersion();
@@ -72,6 +68,18 @@ namespace IdleBusiness.Data
             modelBuilder.Entity<Purchasable>()
                 .HasOne(s => s.PurchasableUpgrade)
                 .WithOne()
+                .IsRequired(false);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(s => s.ReceivingBusiness)
+                .WithMany(s => s.ReceivedMessages)
+                .HasForeignKey(s => s.ReceivingBusinessId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(s => s.SendingBusiness)
+                .WithMany(s => s.SentMessages)
+                .HasForeignKey(s => s.SendingBusinessId)
                 .IsRequired(false);
 
             base.OnModelCreating(modelBuilder);

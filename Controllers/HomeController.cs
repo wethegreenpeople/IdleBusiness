@@ -71,6 +71,8 @@ namespace IdleBusiness.Controllers
 
             if (user != null && user.Business != null) viewModel.PurchasedItems = user.Business.BusinessPurchases.Select(s => (s.Purchase, s.AmountOfPurchases)).ToList();
 
+            ViewData["DisplayMessageBadge"] = true;
+
             return View(viewModel);
         }
 
@@ -170,6 +172,7 @@ namespace IdleBusiness.Controllers
                     .ThenInclude(s => s.BusinessPurchases)
                         .ThenInclude(s => s.Purchase)
                 .Include(s => s.Business.Sector)
+                .Include(s => s.Business.ReceivedMessages)
                 .SingleOrDefaultAsync(s => s.Id == userId);
         }
 

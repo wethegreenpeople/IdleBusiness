@@ -34,6 +34,20 @@ namespace IdleBusiness.Helpers
                 item.InvestingBusiness.CashPerSecond += item.InvestmentAmount;
                 item.BusinessToInvest.CashPerSecond -= item.InvestmentAmount;
 
+                item.InvestingBusiness.ReceivedMessages.Add(new Message()
+                {
+                    DateReceived = DateTime.UtcNow,
+                    MessageBody = $"You gained ${(int)investorsProfit} from your investments in {item.BusinessToInvest.Name}",
+                    ReceivingBusinessId = item.InvestingBusinessId,
+                });
+
+                item.BusinessToInvest.ReceivedMessages.Add(new Message()
+                {
+                    DateReceived = DateTime.UtcNow,
+                    MessageBody = $"After investments were removed, you lost ${(int)item.InvestmentAmount} CPS",
+                    ReceivingBusinessId = item.BusinessToInvestId,
+                });
+
                 _context.Business.Update(item.InvestingBusiness);
                 _context.Business.Update(item.BusinessToInvest);
                 _context.Investments.Remove(item);
@@ -53,6 +67,14 @@ namespace IdleBusiness.Helpers
             foreach (var item in espionages)
             {
                 item.BusinessToInvest.CashPerSecond += item.InvestmentAmount;
+
+                item.BusinessToInvest.ReceivedMessages.Add(new Message()
+                {
+                    DateReceived = DateTime.UtcNow,
+                    MessageBody = $"After espionages were removed, you gained ${(int)item.InvestmentAmount} CPS",
+                    ReceivingBusinessId = item.BusinessToInvestId,
+                });
+
                 _context.Business.Update(item.BusinessToInvest);
                 _context.Investments.Remove(item);
             }

@@ -11,8 +11,8 @@ namespace IdleBusiness.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Product { get; set; }
-        public float Cash { get; set; }
-        public float LifeTimeEarnings { get; set; }
+        public double Cash { get; set; }
+        public double LifeTimeEarnings { get; set; }
         public float CashPerSecond { get; set; }
         public DateTime LastCheckIn { get; set; }
         public float EspionageChance { get; set; }
@@ -28,6 +28,8 @@ namespace IdleBusiness.Models
         public virtual Entrepreneur Owner { get; set; }
         public virtual ICollection<BusinessPurchase> BusinessPurchases { get; set; }
         public virtual ICollection<Investment> Investments { get; set; } = new List<Investment>();
+        public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
+        public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
 
         public Business()
         {
