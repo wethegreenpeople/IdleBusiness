@@ -101,41 +101,13 @@ namespace IdleBusiness.Controllers
 
             if (!PurchasableHelper.EnsurePurchaseIsValid(purchasable, user.Business, purchaseCount))
                 return Ok();
-                
-            var existingBusinessPurchasesCount = (await _context.BusinessPurchases
-                .SingleOrDefaultAsync(s => s.BusinessId == user.Business.Id && s.PurchaseId == purchasableId))?.AmountOfPurchases ?? 0;
 
-            var currentAdjustedPrice = (float)(purchasable.Cost * Math.Pow((1 + purchasable.PerOwnedModifier), existingBusinessPurchasesCount));
-            var purchasesApplied = 0;
-            for (int i = 0; i < purchaseCount; ++i)
-            {
-                if (currentAdjustedPrice > user.Business.Cash) break;
-                user.Business.Cash -= currentAdjustedPrice;
-                currentAdjustedPrice += (currentAdjustedPrice * purchasable.PerOwnedModifier);
-                ++purchasesApplied;
-                user.Business.CashPerSecond += purchasable.CashModifier;
-                user.Business.EspionageChance += purchasable.EspionageModifier;
-                user.Business.MaxEmployeeAmount += purchasable.MaxEmployeeModifier;
-                user.Business.MaxItemAmount += purchasable.MaxItemAmountModifier;
-                user.Business.EspionageDefense += purchasable.EspionageDefenseModifier;
-            }
-
-            var businessPurchase = user.Business.BusinessPurchases.SingleOrDefault(s => s.PurchaseId == purchasableId);
-            if (businessPurchase != null)
-            {
-                businessPurchase.AmountOfPurchases += purchasesApplied;
-            }
-            else
-                user.Business.BusinessPurchases.Add(new BusinessPurchase() { BusinessId = user.Business.Id, PurchaseId = purchasableId, AmountOfPurchases = purchaseCount });
-
-            if (purchasable.Type.Id == (int)PurchasableTypeEnum.Employee)
-                user.Business.AmountEmployed += purchasesApplied;
-            if (purchasable.Type.Id == (int)PurchasableTypeEnum.Buff)
-                user.Business.AmountOwnedItems += purchasesApplied;
-
+            user.Business = await _purchasableHelper.ApplyItemStatsToBussiness(purchasable, user.Business, purchaseCount);
             user.Business.LastCheckIn = DateTime.UtcNow;
 
             _context.Entrepreneurs.Update(user);
+
+            await _purchasableHelper.PerformSpecialOnPurchaseActions(purchasable, user.Business);
 
             if (purchasable.IsGlobalPurchase)
                 await _purchasableHelper.ApplyGlobalPurchaseBonus(purchasable, user.Business);

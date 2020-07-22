@@ -1,5 +1,6 @@
 ﻿using IdleBusiness.Data;
 using IdleBusiness.Models;
+using IdleBusiness.Purchasables;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,51 @@ namespace IdleBusiness.Helpers
                     return s; 
                 }));
             await _context.SaveChangesAsync();
+        }
+
+        public async Task PerformSpecialOnPurchaseActions(Purchasable purchasable, Business business)
+        {
+            var repo = new SpecialPurchasableRepo(_context, this);
+            var special = repo.GetSpecialPurchasable(purchasable, business);
+            if (special == null) return;
+
+            await special.OnPurchaseEffect();
+        }
+
+        public async Task<Business> ApplyItemStatsToBussiness(Purchasable purchasable, Business business, int purchaseCount)
+        {
+            var existingBusinessPurchasesCount = (await _context.BusinessPurchases
+                .SingleOrDefaultAsync(s => s.BusinessId == business.Id && s.PurchaseId == purchasable.Id))?.AmountOfPurchases ?? 0;
+
+            var currentAdjustedPrice = (float)(purchasable.Cost * Math.Pow((1 + purchasable.PerOwnedModifier), existingBusinessPurchasesCount));
+            var purchasesApplied = 0;
+            for (int i = 0; i < purchaseCount; ++i)
+            {
+                if (currentAdjustedPrice > business.Cash) break;
+                business.Cash -= currentAdjustedPrice;
+                currentAdjustedPrice += (currentAdjustedPrice * purchasable.PerOwnedModifier);
+                ++purchasesApplied;
+                business.CashPerSecond += purchasable.CashModifier;
+                business.EspionageChance += purchasable.EspionageModifier;
+                business.MaxEmployeeAmount += purchasable.MaxEmployeeModifier;
+                business.MaxItemAmount += purchasable.MaxItemAmountModifier;
+                business.EspionageDefense += purchasable.EspionageDefenseModifier;
+            }
+
+            var businessPurchase = business.BusinessPurchases.SingleOrDefault(s => s.PurchaseId == purchasable.Id);
+            if (businessPurchase != null)
+            {
+                businessPurchase.AmountOfPurchases += purchasesApplied;
+            }
+            else
+                business.BusinessPurchases.Add(new BusinessPurchase() { BusinessId = business.Id, PurchaseId = purchasable.Id, AmountOfPurchases = purchaseCount });
+
+            if (purchasable.Type.Id == (int)PurchasableTypeEnum.Employee)
+                business.AmountEmployed += purchasesApplied;
+            if (purchasable.Type.Id == (int)PurchasableTypeEnum.Buff)
+                business.AmountOwnedItems += purchasesApplied;
+
+            return business;
         }
 
         public static Purchasable AdjustPurchasableCostWithSectorBonus(Purchasable purchase, Business business)

@@ -5,6 +5,7 @@ using System.Text;
 using IdleBusiness.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace IdleBusiness.Data
 {
@@ -74,6 +75,21 @@ namespace IdleBusiness.Data
                 .IsRequired(false);
 
             base.OnModelCreating(modelBuilder);
+        }
+    }
+
+    public static class ApplicationDbContextFactory
+    {
+        public static ApplicationDbContext CreateDbContext(IConfiguration config, DbContextOptions<ApplicationDbContext> options = null)
+        {
+            ApplicationDbContext context;
+            if (options != null) context = new ApplicationDbContext(options);
+            else context = new ApplicationDbContext(
+                new DbContextOptionsBuilder<ApplicationDbContext>()
+                    .UseMySql(config.GetConnectionString("DefaultConnection"))
+                    .Options);
+
+            return context;
         }
     }
 }

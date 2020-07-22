@@ -62,6 +62,8 @@ namespace IdleBusiness
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
+
+            services.AddTransient<PurchasableHelper>(s => new PurchasableHelper(ApplicationDbContextFactory.CreateDbContext(Configuration)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

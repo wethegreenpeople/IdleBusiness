@@ -29,6 +29,11 @@ function DisableUnavailablePurchases() {
             var amountOfOwnedItems = parseInt($("#businessTotalItemsOwned").text());
             var maxItemMod = parseFloat($(this).attr("data-purchase-item-maxItemMod"));
             if (amountOfOwnedItems >= currentMaxItems && maxItemMod <= 0) $("#purchase-item-" + itemId).addClass("disabled-card");
+
+            if (itemId == "29") { // Intern training item
+                var iternAmount = parseInt($("#amountOfItemsPurchased-item-1").text());
+                if (iternAmount < 30) $("#purchase-item-" + itemId).addClass("disabled-card");
+            }
         }
         else { $("#purchase-item-" + itemId).removeClass("disabled-card"); }
     });
