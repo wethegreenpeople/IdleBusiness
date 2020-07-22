@@ -49,7 +49,7 @@
                         <ul class="list-group">
                             <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.CurrentCash"></span></li>
                             <li class="list-group-item">Cash per second: $<span id="businessCashPerSecond">@Model.Business.CashPerSecond</span></li>
-                            <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance">@(Model.Business.EspionageChance * 100)</span>%</li>
+                            <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance" class="formatted-number" data-number-to-format="@(Model.Business.EspionageChance)" data-number-format-style="%0"></span></li>
                             <li class="list-group-item">Espionage Defense: <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
                         </ul>
                     </div>

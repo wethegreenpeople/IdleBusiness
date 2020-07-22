@@ -13,10 +13,10 @@ namespace IdleBusiness.Models
         public string Product { get; set; }
         public double Cash { get; set; }
         public double LifeTimeEarnings { get; set; }
-        public float CashPerSecond { get; set; }
+        public double CashPerSecond { get; set; }
         public DateTime LastCheckIn { get; set; }
-        public float EspionageChance { get; set; }
-        public float EspionageDefense { get; set; }
+        public double EspionageChance { get; set; }
+        public double EspionageDefense { get; set; }
         public int MaxEmployeeAmount { get; set; }
         public int AmountEmployed { get; set; }
         public int MaxItemAmount { get; set; }

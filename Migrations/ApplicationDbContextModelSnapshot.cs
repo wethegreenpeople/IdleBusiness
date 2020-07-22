@@ -32,14 +32,14 @@ namespace IdleBusiness.Migrations
                     b.Property<double>("Cash")
                         .HasColumnType("double");
 
-                    b.Property<float>("CashPerSecond")
-                        .HasColumnType("float");
+                    b.Property<double>("CashPerSecond")
+                        .HasColumnType("double");
 
-                    b.Property<float>("EspionageChance")
-                        .HasColumnType("float");
+                    b.Property<double>("EspionageChance")
+                        .HasColumnType("double");
 
-                    b.Property<float>("EspionageDefense")
-                        .HasColumnType("float");
+                    b.Property<double>("EspionageDefense")
+                        .HasColumnType("double");
 
                     b.Property<DateTime>("LastCheckIn")
                         .HasColumnType("datetime(6)");
@@ -104,14 +104,14 @@ namespace IdleBusiness.Migrations
                     b.Property<double>("InvestedBusinessCashAtInvestment")
                         .HasColumnType("double");
 
-                    b.Property<float>("InvestedBusinessCashPerSecondAtInvestment")
-                        .HasColumnType("float");
+                    b.Property<double>("InvestedBusinessCashPerSecondAtInvestment")
+                        .HasColumnType("double");
 
                     b.Property<int>("InvestingBusinessId")
                         .HasColumnType("int");
 
-                    b.Property<float>("InvestmentAmount")
-                        .HasColumnType("float");
+                    b.Property<double>("InvestmentAmount")
+                        .HasColumnType("double");
 
                     b.Property<DateTime>("InvestmentExpiration")
                         .HasColumnType("datetime(6)");
@@ -196,20 +196,20 @@ namespace IdleBusiness.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<float>("CashModifier")
-                        .HasColumnType("float");
+                    b.Property<double>("CashModifier")
+                        .HasColumnType("double");
 
-                    b.Property<float>("Cost")
-                        .HasColumnType("float");
+                    b.Property<double>("Cost")
+                        .HasColumnType("double");
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<float>("EspionageDefenseModifier")
-                        .HasColumnType("float");
+                    b.Property<double>("EspionageDefenseModifier")
+                        .HasColumnType("double");
 
-                    b.Property<float>("EspionageModifier")
-                        .HasColumnType("float");
+                    b.Property<double>("EspionageModifier")
+                        .HasColumnType("double");
 
                     b.Property<bool>("IsGlobalPurchase")
                         .HasColumnType("tinyint(1)");
@@ -229,8 +229,8 @@ namespace IdleBusiness.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<float>("PerOwnedModifier")
-                        .HasColumnType("float");
+                    b.Property<double>("PerOwnedModifier")
+                        .HasColumnType("double");
 
                     b.Property<int>("PurchasableTypeId")
                         .HasColumnType("int");
@@ -238,8 +238,8 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("PurchasableUpgradeId")
                         .HasColumnType("int");
 
-                    b.Property<float>("UnlocksAtTotalEarnings")
-                        .HasColumnType("float");
+                    b.Property<double>("UnlocksAtTotalEarnings")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 

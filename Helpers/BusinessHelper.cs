@@ -23,11 +23,11 @@ namespace IdleBusiness.Helpers
             _appHelper = new ApplicationHelper(_logger);
         }
 
-        public async Task<float> CalculateGainsSinceLastCheckIn(int businessId)
+        public async Task<double> CalculateGainsSinceLastCheckIn(int businessId)
         {
             var business = await _context.Business.SingleOrDefaultAsync(s => s.Id == businessId);
             var secondsSinceLastCheckin = (DateTime.UtcNow - business.LastCheckIn).TotalSeconds;
-            return (float)(secondsSinceLastCheckin * business.CashPerSecond);
+            return (double)(secondsSinceLastCheckin * business.CashPerSecond);
         }
 
         public async Task<Business> UpdateGainsSinceLastCheckIn(int businessId)

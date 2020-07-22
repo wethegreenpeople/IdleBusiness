@@ -9,15 +9,15 @@ namespace IdleBusiness.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public float CashModifier { get; set; }
-        public float EspionageModifier { get; set; }
-        public float EspionageDefenseModifier { get; set; }
+        public double CashModifier { get; set; }
+        public double EspionageModifier { get; set; }
+        public double EspionageDefenseModifier { get; set; }
         public int MaxEmployeeModifier { get; set; }
         public int MaxItemAmountModifier { get; set; }
-        public float Cost { get; set; }
-        public float PerOwnedModifier { get; set; }
+        public double Cost { get; set; }
+        public double PerOwnedModifier { get; set; }
         public string Description { get; set; }
-        public float UnlocksAtTotalEarnings { get; set; }
+        public double UnlocksAtTotalEarnings { get; set; }
         public bool IsSinglePurchase { get; set; }
         public bool IsGlobalPurchase { get; set; }
         public bool IsUpgrade { get; set; }

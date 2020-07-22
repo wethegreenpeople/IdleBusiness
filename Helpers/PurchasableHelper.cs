@@ -50,7 +50,7 @@ namespace IdleBusiness.Helpers
             var existingBusinessPurchasesCount = (await _context.BusinessPurchases
                 .SingleOrDefaultAsync(s => s.BusinessId == business.Id && s.PurchaseId == purchasable.Id))?.AmountOfPurchases ?? 0;
 
-            var currentAdjustedPrice = (float)(purchasable.Cost * Math.Pow((1 + purchasable.PerOwnedModifier), existingBusinessPurchasesCount));
+            var currentAdjustedPrice = (double)(purchasable.Cost * Math.Pow((1 + purchasable.PerOwnedModifier), existingBusinessPurchasesCount));
             var purchasesApplied = 0;
             for (int i = 0; i < purchaseCount; ++i)
             {

@@ -25,12 +25,12 @@ namespace IdleBusiness.Views.Models
         public bool HasSeekingAlphaItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 25).amount > 0;
         public bool HasSeekingAlphaProItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 26).amount > 0;
 
-        public float? AdjustedPurchasableCost(int purchasableId)
+        public double? AdjustedPurchasableCost(int purchasableId)
         {
             if (PurchasedItems == null) return null;
             var purchase = PurchasedItems.SingleOrDefault(s => s.purchasable.Id == purchasableId);
             if (purchase.purchasable == null) return null;
-            return (float)(purchase.purchasable.Cost * Math.Pow((1 + purchase.purchasable.PerOwnedModifier), purchase.amount));
+            return (double)(purchase.purchasable.Cost * Math.Pow((1 + purchase.purchasable.PerOwnedModifier), purchase.amount));
         }
     }
 }
