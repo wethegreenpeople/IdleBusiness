@@ -1,0 +1,25 @@
+﻿@model IdleBusiness.Views.Models.HomeIndexVM
+
+@if (Model.HasSeekingAlphaItem)
+{
+    @if (Model.HasSeekingAlphaProItem)
+    {
+        <li class="list-group-item">
+            <a href="#investmentsCollapse" data-toggle="collapse">Investments in you: @Model.TotalInvestmentsInCompany</a>
+            <div class="collapse" id="investmentsCollapse">
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in Model.InvestmentsInBusiness)
+                    {
+                        <li class="list-group-item">
+                            <a asp-controller="Business" asp-action="Index" asp-route-id="@item.InvestingBusinessId">@item.InvestingBusiness.Name</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="list-group-item">Investments in you: @Model.TotalInvestmentsInCompany</li>
+    }
+}

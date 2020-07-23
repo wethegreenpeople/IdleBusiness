@@ -1,0 +1,32 @@
+﻿@model IdleBusiness.Views.Models.BusinessIndexVM
+
+@if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 28))
+{
+    <div class="card mr-2 mt-2" style="width: 24rem;">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Business.Name's investments</h5>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">Business</th>
+                        <th scope="col">Investment Amount</th>
+                    </tr>
+                </thead>
+                @if (Model.CurrentBusinessInvestments != null)
+                {
+                    <tbody>
+                        @foreach (var item in Model.CurrentBusinessInvestments)
+                        {
+                            <tr>
+                                <td><a asp-controller="Business" asp-action="Index" asp-route-id="@item.BusinessToInvestId">@item.BusinessToInvest.Name</a></td>
+                                <td>
+                                    <span class="formatted-number" data-number-to-format="@item.InvestmentAmount" data-number-format-style="$0a"></span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </table>
+        </div>
+    </div>
+}

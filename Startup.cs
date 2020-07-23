@@ -38,7 +38,7 @@ namespace IdleBusiness
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("DefaultConnection"), provider => provider.EnableRetryOnFailure(3)));
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             var mvcBuilder = services.AddControllersWithViews().AddRazorRuntimeCompilation();

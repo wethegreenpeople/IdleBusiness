@@ -49,9 +49,9 @@ function UpdateBusinessCurrentCash() {
 }
 
 function UpdateBusinessCashPerSecond(button) {
-    var currentCps = parseInt($("#businessCashPerSecond").text());
+    var currentCps = parseInt($("#businessCashPerSecond").attr("data-number-to-format"));
     var cpsIncrease = parseInt(button.getAttribute("data-purchase-item-cps"));
-    $("#businessCashPerSecond").text(currentCps + cpsIncrease);
+    $("#businessCashPerSecond").attr("data-number-to-format", currentCps + cpsIncrease).trigger('numberChange');
 }
 
 function UpdateEspionageDefense(button) {
@@ -90,7 +90,10 @@ function UpdateTotalEmployed(button) {
 
 function UpdateBusinessOwnedItems(button) {
     var amountOfItemsPurchased = $("#amountOfItemsPurchased-item-" + $(button).attr("data-purchase-item-id"));
-    amountOfItemsPurchased.text(parseInt(amountOfItemsPurchased.text()) + 1);
+    var adjustedPurchasedAmount = parseInt(amountOfItemsPurchased.text()) + 1;
+    amountOfItemsPurchased.text(adjustedPurchasedAmount);
+
+    $(button).attr("data-purchase-item-amountOwned", adjustedPurchasedAmount);
 }
 
 function UiPurchaseItem() {

@@ -1,7 +1,7 @@
 ﻿@model IdleBusiness.Views.Models.HomeIndexVM;
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
 <span hidden id="unreadMessageAmount" data-message-amount="@Model.UnreadMessageAmount"></span>
@@ -48,7 +48,7 @@
                     <div class="col pr-1">
                         <ul class="list-group">
                             <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.CurrentCash"></span></li>
-                            <li class="list-group-item">Cash per second: $<span id="businessCashPerSecond">@Model.Business.CashPerSecond</span></li>
+                            <li class="list-group-item">Cash per second: <span id="businessCashPerSecond" class="formatted-number" data-number-to-format="@Model.Business.CashPerSecond" data-number-format-style="$0.00"></span></li>
                             <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance" class="formatted-number" data-number-to-format="@(Model.Business.EspionageChance)" data-number-format-style="%0"></span></li>
                             <li class="list-group-item">Espionage Defense: <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
                         </ul>
@@ -67,35 +67,14 @@
                     </div>
                 </div>
 
-                @if (Model.HasSeekingAlphaItem)
-                {
-                    <div class="row mt-2">
-                        <div class="col">
-                            <ul class="list-group">
-                                @if (Model.HasSeekingAlphaProItem)
-                                {
-                                    <li class="list-group-item">
-                                        Investments in you: <a href="#collapseExample" data-toggle="collapse">@Model.TotalInvestmentsInCompany</a>
-                                        <div class="collapse" id="collapseExample">
-                                            <ul class="list-group list-group-flush">
-                                                @foreach (var item in Model.InvestmentsInBusiness)
-                                                {
-                                                <li class="list-group-item">
-                                                    <a asp-controller="Business" asp-action="Index" asp-route-id="@item.InvestingBusinessId">@item.InvestingBusiness.Name</a>
-                                                </li>
-                                                }
-                                            </ul>
-                                        </div>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="list-group-item">Investments in you: @Model.TotalInvestmentsInCompany</li>
-                                }
-                            </ul>
-                        </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <ul class="list-group list-group-horizontal">
+                            <partial name="Partials/InvestmentsInBusiness" model="Model" />
+                            <partial name="Partials/EspionagesInBusiness" model="Model" />
+                        </ul>
                     </div>
-                }
+                </div>
             </div>
         }
     }
@@ -180,7 +159,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#purchase-item-1").show(500);
-            var cashpersecond = parseFloat($("#businessCashPerSecond").text());
+            var cashpersecond = parseFloat($("#businessCashPerSecond").attr("data-number-to-format"));
 
             setInterval(function () {
                 DisableUnavailablePurchases();
@@ -189,7 +168,7 @@
                 var newTotal = current + cashpersecond;
                 $("#businessCurrentCash").attr("data-number-to-format", newTotal).trigger('numberChange');
 
-                cashpersecond = parseInt($("#businessCashPerSecond").text());
+                cashpersecond = parseInt($("#businessCashPerSecond").attr("data-number-to-format"));
             }, 1000);
 
             function displayUnlockedPurchables() {

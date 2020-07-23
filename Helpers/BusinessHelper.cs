@@ -1,4 +1,5 @@
 ﻿using IdleBusiness.Data;
+using IdleBusiness.Extensions;
 using IdleBusiness.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,7 @@ namespace IdleBusiness.Helpers
                 business.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"You've gained {gains} since you last visited on {business.LastCheckIn}",
+                    MessageBody = $"You've gained {gains.ToKMB()} since you last visited on {business.LastCheckIn}",
                     ReceivingBusinessId = business.Id,
                 });
             }
@@ -61,6 +62,26 @@ namespace IdleBusiness.Helpers
         {
             return await _context.Investments
                 .Where(s => s.BusinessToInvest.Id == businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Investment)
+                .Include(s => s.InvestingBusiness)
+                .ToListAsync();
+        }
+
+        public async Task<List<Investment>> GetInvestmentsCompanyHasMade(int businessId)
+        {
+            return await _context.Investments
+                .Where(s => s.InvestingBusinessId == businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Investment)
+                .Include(s => s.BusinessToInvest)
+                .Include(s => s.InvestingBusiness)
+                .ToListAsync();
+        }
+
+        public async Task<List<Investment>> GetEspionagesAgainstCompany(int businessId)
+        {
+            return await _context.Investments
+                .Where(s => s.BusinessToInvest.Id == businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Espionage)
                 .Include(s => s.InvestingBusiness)
                 .ToListAsync();
         }

@@ -1,4 +1,5 @@
 ﻿using IdleBusiness.Data;
+using IdleBusiness.Extensions;
 using IdleBusiness.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -37,14 +38,14 @@ namespace IdleBusiness.Helpers
                 item.InvestingBusiness.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"You gained ${(int)investorsProfit} from your investments in {item.BusinessToInvest.Name}",
+                    MessageBody = $"You gained ${investorsProfit.ToKMB()} from your investments in {item.BusinessToInvest.Name}",
                     ReceivingBusinessId = item.InvestingBusinessId,
                 });
 
                 item.BusinessToInvest.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"After investments were removed, you lost ${(int)item.InvestmentAmount} CPS",
+                    MessageBody = $"After investments were removed, you lost ${item.InvestmentAmount.ToKMB()} CPS",
                     ReceivingBusinessId = item.BusinessToInvestId,
                 });
 
@@ -71,7 +72,7 @@ namespace IdleBusiness.Helpers
                 item.BusinessToInvest.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"After espionages were removed, you gained ${(int)item.InvestmentAmount} CPS",
+                    MessageBody = $"After espionages were removed, you gained ${item.InvestmentAmount.ToKMB()} CPS",
                     ReceivingBusinessId = item.BusinessToInvestId,
                 });
 

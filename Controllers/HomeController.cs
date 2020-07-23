@@ -63,6 +63,7 @@ namespace IdleBusiness.Controllers
                         .ToList();
 
                     viewModel.InvestmentsInBusiness = await _businessHelper.GetInvestmentsInCompany(business.Id);
+                    viewModel.EspionagesAgainstBusiness = await _businessHelper.GetEspionagesAgainstCompany(business.Id);
                 }
             }
 

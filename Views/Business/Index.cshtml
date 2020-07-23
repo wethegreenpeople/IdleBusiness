@@ -1,5 +1,9 @@
 ﻿@model IdleBusiness.Views.Models.BusinessIndexVM;
 
+@{
+    ViewData["Title"] = $"{Model.Business.Name}";
+}
+
 <div class="row">
     <div class="col-5">
         <div class="row">
@@ -74,7 +78,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.Investments)
+                                @foreach (var item in Model.CurrentEntrepreneurInvestments)
                                 {
                                     <tr>
                                         <td>@item.InvestmentExpiration.Date.ToString("MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture)</td>
@@ -92,6 +96,10 @@
                 </div>
             </div>
         }
+
+        <div class="row">
+            <partial name="Partials/InvestmentsBusinessHasMade" model="Model" />
+        </div>
     </div>
 
     <div class="col mt-5">

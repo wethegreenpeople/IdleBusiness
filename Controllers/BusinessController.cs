@@ -35,6 +35,7 @@ namespace IdleBusiness.Controllers
             var business = await _businessHelper.UpdateGainsSinceLastCheckIn(id);
             vm.Business = business;
             vm.CurrentEntrepreneur = await GetCurrentEntrepreneur();
+            vm.CurrentBusinessInvestments = await _businessHelper.GetInvestmentsCompanyHasMade(id);
             vm.HasCurrentEntrepreneurInvestedInBusiness = business.Investments.Any(s => s.InvestingBusinessId == vm.CurrentEntrepreneur.Business.Id && s.InvestmentType != InvestmentType.Espionage);
             if (vm.HasCurrentEntrepreneurInvestedInBusiness)
             {
@@ -42,7 +43,7 @@ namespace IdleBusiness.Controllers
                     .Where(s => s.InvestingBusinessId == vm.CurrentEntrepreneur.Business.Id)
                     .Where(s => s.InvestmentType == InvestmentType.Investment)
                     .ToList();
-                vm.Investments = investments;
+                vm.CurrentEntrepreneurInvestments = investments;
                 foreach (var item in investments)
                 {
                     vm.TotalInvestedAmount += item.InvestmentAmount;
@@ -138,6 +139,7 @@ namespace IdleBusiness.Controllers
             var ent = await _context.Entrepreneurs
                 .Include(s => s.Business)
                     .ThenInclude(s => s.Investments)
+                .Include(s => s.Business.BusinessPurchases)
                 .FirstOrDefaultAsync(s => s.Id == userId);
 
             if (ent == null) return null;

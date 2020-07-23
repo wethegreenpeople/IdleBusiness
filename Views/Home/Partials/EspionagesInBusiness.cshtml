@@ -1,0 +1,25 @@
+﻿@model IdleBusiness.Views.Models.HomeIndexVM
+
+@if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.Business.BusinessPurchases, 30))
+{
+    @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.Business.BusinessPurchases, 31))
+    {
+        <li class="list-group-item">
+            <a href="#espionagesCollapse" data-toggle="collapse">Espionages against you: @Model.EspionagesAgainstBusiness.Count</a>
+            <div class="collapse" id="espionagesCollapse">
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in Model.EspionagesAgainstBusiness)
+                    {
+                        <li class="list-group-item">
+                            <a asp-controller="Business" asp-action="Index" asp-route-id="@item.InvestingBusinessId">@item.InvestingBusiness.Name</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="list-group-item">Espionages against you: @Model.EspionagesAgainstBusiness.Count</li>
+    }
+}

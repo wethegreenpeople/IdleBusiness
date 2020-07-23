@@ -135,5 +135,7 @@ namespace IdleBusiness.Helpers
 
             return false;
         }
+
+        public static bool HasBusinessPurchasedItem(ICollection<BusinessPurchase> businessPurchases, int purchaseId) => businessPurchases.Any(s => s.PurchaseId == purchaseId);
     }
 }
