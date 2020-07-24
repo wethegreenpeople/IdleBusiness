@@ -119,11 +119,16 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("InvestmentType")
                         .HasColumnType("int");
 
+                    b.Property<int>("PartnerBusinessId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessToInvestId");
 
                     b.HasIndex("InvestingBusinessId");
+
+                    b.HasIndex("PartnerBusinessId");
 
                     b.ToTable("Investments");
                 });
@@ -532,6 +537,10 @@ namespace IdleBusiness.Migrations
                         .HasForeignKey("InvestingBusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("IdleBusiness.Models.Business", "PartnerBusiness")
+                        .WithMany("GroupInvestments")
+                        .HasForeignKey("PartnerBusinessId");
                 });
 
             modelBuilder.Entity("IdleBusiness.Models.Message", b =>

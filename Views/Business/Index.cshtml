@@ -41,7 +41,6 @@
                             <button type="submit" class="btn btn-primary">Invest</button>
                         </div>
                     </div>
-
                 </form>
             }
             else
@@ -97,6 +96,10 @@
             </div>
         }
 
+        <div class="row mt-2">
+            <partial name="Partials/GroupInvestment" model="Model" />
+        </div>
+
         <div class="row">
             <partial name="Partials/InvestmentsBusinessHasMade" model="Model" />
         </div>
@@ -150,6 +153,32 @@
 
                 $("#profitPercentage").attr("data-number-to-format", investmentPercentage).trigger('numberChange');
             }));
+        });
+    </script>
+
+    <script>
+        $('#companyToPartnerWith').select2({
+            ajax: {
+                url: '/Business/FindAvailableGroupInvestors',
+                delay: 500,
+                dataType: 'json',
+                data: function (params) {
+                    var query = {
+                        companyName: params.term,
+                    }
+
+                    // Query parameters will be ?search=[term]&type=public
+                    return query;
+                },
+                processResults: function (data) {
+                    var businesses = [];
+                    $.each(data, function (i, item) {
+                        businesses.push({ id: item.Id, "text": item.Name });
+                    });
+                    console.log(data);
+                    return { results: businesses };
+                }
+            }
         });
     </script>
 }

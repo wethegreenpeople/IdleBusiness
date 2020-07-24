@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdleBusiness.Data;
+using IdleBusiness.Extensions;
 using IdleBusiness.Helpers;
 using IdleBusiness.Models;
 using IdleBusiness.Views.Models;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace IdleBusiness.Controllers
 {
@@ -94,6 +96,109 @@ namespace IdleBusiness.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> FindAvailableGroupInvestors([FromQuery]string companyName)
+        {
+            if (string.IsNullOrEmpty(companyName)) return Json("");
+
+            var availableBusinesses = _context.Business
+                .Include(s => s.BusinessPurchases)
+                .Where(s => s.Name.ToLower().Contains(companyName.ToLower()))
+                .ToList()
+                .Where(s => PurchasableHelper.HasBusinessPurchasedItem(s.BusinessPurchases, 33));
+
+            return Ok(JsonConvert.SerializeObject(availableBusinesses, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore}));
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> GroupInvestInCompany(int companyToPartnerWith, int businessSendingRequest, int companyToInvestInId, double investmentAmount)
+        {
+            var user = await GetCurrentEntrepreneur();
+            var companyToInvestIn = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToInvestInId);
+            var partnerCompany = await _context.Business.Where(s => s.Id == companyToPartnerWith).SingleOrDefaultAsync();
+
+            if (investmentAmount <= 0 || investmentAmount > user.Business.CashPerSecond || investmentAmount > partnerCompany.CashPerSecond) 
+                return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
+
+            var investment = new Investment()
+            {
+                BusinessToInvestId = companyToInvestIn.Id,
+                InvestmentAmount = investmentAmount,
+                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                InvestedBusinessCashAtInvestment = companyToInvestIn.Cash,
+                InvestedBusinessCashPerSecondAtInvestment = companyToInvestIn.CashPerSecond,
+                InvestmentType = InvestmentType.Group,
+                InvestingBusinessId = user.Business.Id,
+                PartnerBusinessId = companyToPartnerWith,
+            };
+            companyToInvestIn.Investments.Add(investment);
+            await _context.SaveChangesAsync();
+
+            var bsr = await _context.Business.Where(s => s.Id == businessSendingRequest).SingleOrDefaultAsync();
+            var investmentLink = @$"<a href='/Business/GroupInvestment/{investment.Id}'>Click here to accept</a>";
+            var message = $"{bsr.Name} wants to invest ${investmentAmount.ToKMB()} in {companyToInvestIn.Name} with you. {investmentLink}";
+            partnerCompany.ReceivedMessages.Add(
+                new Message() { DateReceived = DateTime.UtcNow, SendingBusinessId = businessSendingRequest, ReceivingBusinessId = companyToPartnerWith, MessageBody = message });
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GroupInvestment(int id)
+        {
+            var groupInvestment = await _context.Investments
+                .Include(s => s.BusinessToInvest)
+                .Include(s => s.InvestingBusiness)
+                .Include(s => s.PartnerBusiness)
+                .SingleOrDefaultAsync(s => s.Id == id);
+
+            var investingBusiness = groupInvestment.InvestingBusiness;
+            var partnerBusiness = groupInvestment.PartnerBusiness;
+            var businessToInvestIn = groupInvestment.BusinessToInvest;
+
+            if (groupInvestment.PartnerBusinessId != partnerBusiness.Id) return RedirectToAction("Index", "Home");
+
+            partnerBusiness.CashPerSecond -= groupInvestment.InvestmentAmount;
+            investingBusiness.CashPerSecond -= groupInvestment.InvestmentAmount;
+            businessToInvestIn.CashPerSecond += groupInvestment.InvestmentAmount * 2;
+
+            _context.Business.Update(partnerBusiness);
+            _context.Business.Update(investingBusiness);
+            _context.Business.Update(businessToInvestIn);
+            await _context.SaveChangesAsync();
+
+            var investment = new Investment()
+            {
+                BusinessToInvestId = businessToInvestIn.Id,
+                InvestmentAmount = groupInvestment.InvestmentAmount,
+                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                InvestedBusinessCashAtInvestment = groupInvestment.BusinessToInvest.Cash,
+                InvestedBusinessCashPerSecondAtInvestment = groupInvestment.BusinessToInvest.CashPerSecond,
+                InvestmentType = InvestmentType.Investment,
+                InvestingBusinessId = partnerBusiness.Id,
+            };
+            _context.Investments.Add(investment);
+
+            _context.Investments.Add(new Investment()
+            {
+                BusinessToInvestId = businessToInvestIn.Id,
+                InvestmentAmount = groupInvestment.InvestmentAmount,
+                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                InvestedBusinessCashAtInvestment = groupInvestment.BusinessToInvest.Cash,
+                InvestedBusinessCashPerSecondAtInvestment = groupInvestment.BusinessToInvest.CashPerSecond,
+                InvestmentType = InvestmentType.Investment,
+                InvestingBusinessId = investingBusiness.Id,
+            });
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

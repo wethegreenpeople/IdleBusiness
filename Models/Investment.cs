@@ -21,11 +21,15 @@ namespace IdleBusiness.Models
         public int InvestingBusinessId { get; set; }
         public virtual Business InvestingBusiness { get; set; }
 
+        public int PartnerBusinessId { get; set; }
+        public virtual Business PartnerBusiness { get; set; }
+
     }
 
     public enum InvestmentType
     {
         Investment = 10,
         Espionage = 20,
+        Group = 30,
     }
 }

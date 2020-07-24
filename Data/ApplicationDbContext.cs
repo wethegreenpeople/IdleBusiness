@@ -51,6 +51,12 @@ namespace IdleBusiness.Data
                 .WithMany(s => s.Investments)
                 .HasForeignKey(s => s.BusinessToInvestId);
 
+            modelBuilder.Entity<Investment>()
+                .HasOne(s => s.PartnerBusiness)
+                .WithMany(s => s.GroupInvestments)
+                .HasForeignKey(s => s.PartnerBusinessId)
+                .IsRequired(false);
+
             modelBuilder.Entity<Business>()
                 .HasMany(s => s.Investments)
                 .WithOne(s => s.BusinessToInvest)

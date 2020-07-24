@@ -22,7 +22,7 @@
                     <tr>
                         <td>@item.Id</td>
                         <td>@(item.SendingBusiness?.Name ?? "System")</td>
-                        <td>@item.MessageBody</td>
+                        <td>@Html.Raw(@item.MessageBody)</td>
                         <td>@item.DateReceived</td>
                     </tr>
                 }
