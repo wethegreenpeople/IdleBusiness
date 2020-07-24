@@ -52,6 +52,7 @@ namespace IdleBusiness.Controllers
                     vm.InvestedProfits += InvestmentHelper.CalculateInvestmentProfit(item);
                 }
             }
+            vm.CurrentBusinessEspionages = await _businessHelper.GetEspionagesCompanyHasComitted(id);
             if (vm.Business == null) return RedirectToAction("Index", "Home");
 
             return View(vm);

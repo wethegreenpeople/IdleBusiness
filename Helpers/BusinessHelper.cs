@@ -85,5 +85,15 @@ namespace IdleBusiness.Helpers
                 .Include(s => s.InvestingBusiness)
                 .ToListAsync();
         }
+
+        public async Task<List<Investment>> GetEspionagesCompanyHasComitted(int businessId)
+        {
+            return await _context.Investments
+                .Where(s => s.InvestingBusinessId == businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Espionage)
+                .Include(s => s.BusinessToInvest)
+                .Include(s => s.InvestingBusiness)
+                .ToListAsync();
+        }
     }
 }

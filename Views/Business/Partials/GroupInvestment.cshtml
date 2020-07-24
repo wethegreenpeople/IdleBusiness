@@ -1,6 +1,6 @@
 ﻿@model IdleBusiness.Views.Models.BusinessIndexVM
 
-@if (true)
+@if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 33))
 {
     <form asp-controller="Business" asp-action="GroupInvestInCompany" asp-route-companyToInvestInId="@Model.Business.Id" asp-route-businessSendingRequest="@Model.CurrentEntrepreneur.Business.Id" method="post">
         <div class="card mr-2" style="width: 24rem;">

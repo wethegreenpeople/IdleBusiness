@@ -16,5 +16,6 @@ namespace IdleBusiness.Views.Models
         public double InvestedProfits { get; set; }
         public List<Investment> CurrentEntrepreneurInvestments { get; set; }
         public List<Investment> CurrentBusinessInvestments { get; set; }
+        public List<Investment> CurrentBusinessEspionages { get; set; }
     }
 }

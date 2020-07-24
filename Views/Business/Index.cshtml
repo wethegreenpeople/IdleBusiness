@@ -23,7 +23,6 @@
     <div class="col mt-5">
         <div class="row"><h2>Invest</h2></div>
         <div class="row">
-
             @if (Model.CurrentEntrepreneur.Business.LifeTimeEarnings > 1000000)
             {
                 <form asp-controller="Business" asp-action="InvestInCompany" asp-route-companyToInvestInId="@Model.Business.Id" method="post">
@@ -137,6 +136,10 @@
                     </div>
                 </div>
             }
+        </div>
+
+        <div class="row">
+            <partial name="Partials/EspionagesBusinessHasCommitted" model="Model" />
         </div>
     </div>
 </div>
