@@ -1,0 +1,8 @@
+﻿<ul class="list-group">
+    @foreach (var item in Model.MostSuccessfulBusinesses)
+    {
+        <li class="list-group-item">
+            <a asp-controller="Business" asp-action="Index" asp-route-id="@item.Id">@item.Name - <span class="formatted-number" data-number-to-format="@item.Cash" data-number-format-style="($0.00a)"></span></a>
+        </li>
+    }
+</ul>

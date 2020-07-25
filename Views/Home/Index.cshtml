@@ -39,40 +39,72 @@
         }
         else
         {
-            <div class="col-6">
+            <div class="col-4">
                 <div class="row">
-                    <h2>@Model.Business.Name</h2>
-                </div>
+                    <div class="card ml-2 mr-2 mt-2">
+                        <h3 class="card-header bg-card-header">
+                            @Model.Business.Name
+                        </h3>
 
-                <div class="row">
-                    <div class="col pr-1">
-                        <ul class="list-group">
-                            <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.CurrentCash"></span></li>
-                            <li class="list-group-item">Cash per second: <span id="businessCashPerSecond" class="formatted-number" data-number-to-format="@Model.Business.CashPerSecond" data-number-format-style="$0.00"></span></li>
-                            <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance" class="formatted-number" data-number-to-format="@(Model.Business.EspionageChance)" data-number-format-style="%0"></span></li>
-                            <li class="list-group-item">Espionage Defense: <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
-                        </ul>
-                    </div>
-
-                    <div class="col pl-0">
-                        <ul class="list-group">
-                            <li class="list-group-item">Lifetime Earnings: <span id="businessLifeTimeEarnings" class="formatted-number" data-number-to-format="@Model.Business.LifeTimeEarnings" data-number-format-style="($0.0a)"></span></li>
-                            <li class="list-group-item">Employees: <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees">@(Model.Business.MaxEmployeeAmount)</span></li>
-                            <li class="list-group-item">Items: <span id="businessTotalItemsOwned">@Model.Business.AmountOwnedItems</span>/<span id="businessMaxAmountItemsAllowed">@(Model.Business.MaxItemAmount)</span></li>
-                            @if (Model.Business.Sector != null)
-                            {
-                                <li class="list-group-item">Sector: @Model.Business.Sector.Description</li>
-                            }
-                        </ul>
+                        <div class="card-body bg-light">
+                            <partial name="Partials/BusinessInformation" model="Model" />
+                        </div>
                     </div>
                 </div>
+                
+                <div class="row w-100">
+                    <div class="card ml-2 mr-2 mt-2">
+                        <h3 class="card-header bg-card-header">
+                            Most Successful Businesses
+                        </h3>
 
-                <div class="row mt-2">
-                    <div class="col">
-                        <ul class="list-group list-group-horizontal">
-                            <partial name="Partials/InvestmentsInBusiness" model="Model" />
-                            <partial name="Partials/EspionagesInBusiness" model="Model" />
-                        </ul>
+                        <div class="card-body bg-light">
+                            <partial name="Partials/MostSuccessfulBusinesses" model="Model" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-8">
+                <div class="card mr-2 mt-2">
+                    <h3 class="card-header bg-card-header">
+                        Purchase Assets
+                    </h3>
+
+                    <div class="card-body bg-light">
+                        <nav>
+                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                <a class="nav-item nav-link active" id="nav-employees-tab" data-toggle="tab" href="#nav-employees" role="tab">Employees</a>
+                                <a class="nav-item nav-link" id="nav-items-tab" data-toggle="tab" href="#nav-items" role="tab">Items</a>
+                                <a class="nav-item nav-link" id="nav-realestate-tab" data-toggle="tab" href="#nav-realestate" role="tab">Real Estate</a>
+                            </div>
+                        </nav>
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-employees" role="tabpanel">
+                                <div class="row">
+                                    @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 1))
+                                    {
+                                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-items" role="tabpanel">
+                                <div class="row">
+                                    @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 2))
+                                    {
+                                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-realestate" role="tabpanel">
+                                <div class="row">
+                                    @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 3))
+                                    {
+                                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -85,61 +117,9 @@
             <a asp-area="Identity" asp-page="/Account/Register">Create an account</a> or <a asp-action="CreateGuestAccount" asp-controller="Home">continue as a guest</a> to start building your business empire
         </div>
     }
-
-    <div class="col"></div>
-
-    <div class="col-5">
-        <h2>Most Successful Businesses</h2>
-        <ul class="list-group">
-            @foreach (var item in Model.MostSuccessfulBusinesses)
-            {
-                <li class="list-group-item">
-                    <a asp-controller="Business" asp-action="Index" asp-route-id="@item.Id">@item.Name - <span class="formatted-number" data-number-to-format="@item.Cash" data-number-format-style="($0.00a)"></span></a>
-                </li>
-            }
-        </ul>
-    </div>
 </div>
 
-@if (User.Identity.IsAuthenticated && !string.IsNullOrEmpty(Model.Business?.Name))
-{
-    <div class="row mt-5">
-        <div class="col">
-            <div class="row">
-                <h2>Employees</h2>
-            </div>
-            <div class="row overflow-auto" style="max-height: 24rem;">
-                @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 1))
-                {
-                    <partial name="Partials/PurchasableCard" model="(Model, item)" />
-                }
-            </div>
 
-            <div class="row mt-5">
-                <h2>Items</h2>
-            </div>
-            <div class="row overflow-auto" style="max-height: 24rem;">
-                @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 2))
-                {
-                    <partial name="Partials/PurchasableCard" model="(Model, item)" />
-                }
-            </div>
-
-            @if (Model.Purchasables.Any(s => s.Type.Id == 3))
-            {
-                <div class="row mt-5">
-                    <h2>Real Estate</h2>
-                </div>
-                <div class="row overflow-auto" style="max-height: 24rem;">
-                    @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 3))
-                    {
-                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
-                    }
-                </div>
-            }
-        </div>
-    </div>
-}
 
 @section Scripts
 {
