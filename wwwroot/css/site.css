@@ -9,13 +9,13 @@ a.navbar-brand {
 
 /* Provide sufficient contrast against white background */
 a {
-  color: #0366d6;
+    color: #34748a;
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    color: #f8fafa;
+    background-color: #4293af;
+    border-color: #4293af;
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
@@ -62,6 +62,7 @@ body {
     /* Margin bottom by footer height */
     margin-bottom: 60px;
     background-color: #dce2e3;
+    color: #384144;
 }
 .footer {
   position: absolute;

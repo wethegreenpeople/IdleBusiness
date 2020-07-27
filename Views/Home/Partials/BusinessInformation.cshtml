@@ -3,6 +3,10 @@
         <ul class="list-group">
             <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.CurrentCash"></span></li>
             <li class="list-group-item">Cash per second: <span id="businessCashPerSecond" class="formatted-number" data-number-to-format="@Model.Business.CashPerSecond" data-number-format-style="$0.00"></span></li>
+            <li class="list-group-item">Lifetime Earnings: <span id="businessLifeTimeEarnings" class="formatted-number" data-number-to-format="@Model.Business.LifeTimeEarnings" data-number-format-style="($0.0a)"></span></li>
+        </ul>
+
+        <ul class="list-group mt-2">
             <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance" class="formatted-number" data-number-to-format="@(Model.Business.EspionageChance)" data-number-format-style="%0"></span></li>
             <li class="list-group-item">Espionage Defense: <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
         </ul>
@@ -10,22 +14,20 @@
 
     <div class="col pl-0">
         <ul class="list-group">
-            <li class="list-group-item">Lifetime Earnings: <span id="businessLifeTimeEarnings" class="formatted-number" data-number-to-format="@Model.Business.LifeTimeEarnings" data-number-format-style="($0.0a)"></span></li>
             <li class="list-group-item">Employees: <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees">@(Model.Business.MaxEmployeeAmount)</span></li>
             <li class="list-group-item">Items: <span id="businessTotalItemsOwned">@Model.Business.AmountOwnedItems</span>/<span id="businessMaxAmountItemsAllowed">@(Model.Business.MaxItemAmount)</span></li>
+        </ul>
+
+        <ul class="list-group mt-2">
+            <partial name="Partials/InvestmentsInBusiness" model="Model" />
+            <partial name="Partials/EspionagesInBusiness" model="Model" />
+        </ul>
+
+        <ul class="list-group mt-2">
             @if (Model.Business.Sector != null)
             {
                 <li class="list-group-item">Sector: @Model.Business.Sector.Description</li>
             }
-        </ul>
-    </div>
-</div>
-
-<div class="row mt-2">
-    <div class="col">
-        <ul class="list-group list-group-horizontal">
-            <partial name="Partials/InvestmentsInBusiness" model="Model" />
-            <partial name="Partials/EspionagesInBusiness" model="Model" />
         </ul>
     </div>
 </div>

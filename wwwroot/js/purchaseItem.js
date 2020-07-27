@@ -98,6 +98,7 @@ function UpdateBusinessOwnedItems(button) {
 
 function UiPurchaseItem() {
     $('[data-purchase-item-id]').click(function () {
+        event.stopPropagation();
         isPurchaseValid = CheckIfPurchaseIsValid(this);
         if (!isPurchaseValid) { return };
 

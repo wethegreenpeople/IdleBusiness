@@ -1,6 +1,7 @@
 ﻿@model (IdleBusiness.Views.Models.HomeIndexVM HomeVM, IdleBusiness.Models.Purchasable Purchase);
 
-<div id="purchase-item-@Model.Purchase.Id" class="card mr-2 mt-2" style="min-width: 15rem; display: none;">
+
+<div id="purchase-item-@Model.Purchase.Id" class="card mr-2 mt-2" style="min-width: 15rem; display: none;" data-toggle="collapse" data-target="#collapse-@Model.Purchase.Id">
     <div class="card-body">
         <h5 class="card-title">
             @Model.Purchase.Name
@@ -19,51 +20,53 @@
         <p class="card-subtitle mb-2 text-muted">
             Cost: <span id="purchase-item-@Model.Purchase.Id-cost" class="formatted-number" data-number-to-format="@((Model.HomeVM.AdjustedPurchasableCost(Model.Purchase.Id) ?? Model.Purchase.Cost))" data-number-format-style="($0.0a)"></span>
         </p>
-        @if (Model.Purchase.CashModifier > 0)
-        {
-            <p class="card-subtitle mb-2 text-muted">Cash per second: +$<span id="purchase-item-@Model.Purchase.Id-cps">@Model.Purchase.CashModifier</span></p>
-        }
-        @if (Model.Purchase.CashModifier < 0 && Model.HomeVM.Business.Sector?.Id != (int)SectorType.RealEstate)
-        {
-            <p class="card-subtitle mb-2 text-muted">Cash per second: $<span id="purchase-item-@Model.Purchase.Id-cps">@Model.Purchase.CashModifier</span></p>
-        }
-        @if (Model.Purchase.EspionageModifier > 0)
-        {
-            <p class="card-subtitle mb-2 text-muted">Espionage Chance: +<span class="formatted-number" id="purchase-item-@Model.Purchase.Id-espMod" data-number-to-format="@Model.Purchase.EspionageModifier" data-number-format-style="(0%)"></span></p>
-        }
-        @if (Model.Purchase.EspionageDefenseModifier > 0)
-        {
-            <p class="card-subtitle mb-2 text-muted">Espionage Defense: +<span class="formatted-number" id="purchase-item-@Model.Purchase.Id-espDefenseMod" data-number-to-format="@Model.Purchase.EspionageDefenseModifier" data-number-format-style="(0%)"></span></p>
-        }
-        @if (Model.Purchase.MaxEmployeeModifier != 0)
-        {
-            <p class="card-subtitle mb-2 text-muted">Max employees: <span id="purchase-item-@Model.Purchase.Id-maxEmpMod" class="formatted-number"  data-number-to-format="@Model.Purchase.MaxEmployeeModifier" data-number-format-style="+0"></span></p>
-        }
-        @if (Model.Purchase.MaxItemAmountModifier > 0)
-        {
-            <p class="card-subtitle mb-2 text-muted">Max Items: +<span id="purchase-item-@Model.Purchase.Id-maxItemMod">@Model.Purchase.MaxItemAmountModifier</span></p>
-        }
-        @if (!string.IsNullOrEmpty(Model.Purchase.Description))
-        {
-            <p class="card-subtitle mb-2 text-muted">
-                @Model.Purchase.Description
-            </p>
-        }
-        <button type="button"
-                class="btn btn-primary"
-                data-purchase-item-id="@Model.Purchase.Id"
-                data-purchase-item-type="@Model.Purchase.Type.Id"
-                data-purchase-item-cost="@Model.Purchase.Cost"
-                data-purchase-item-adjusted-cost="@((Model.HomeVM.AdjustedPurchasableCost(Model.Purchase.Id) ?? Model.Purchase.Cost).ToString("F2"))"
-                data-purchase-item-cps="@Model.Purchase.CashModifier"
-                data-purchase-item-PerOwned="@Model.Purchase.PerOwnedModifier"
-                data-purchase-item-maxEmployeeMod="@Model.Purchase.MaxEmployeeModifier"
-                data-purchase-item-maxItemMod="@Model.Purchase.MaxItemAmountModifier"
-                data-purchase-item-espDefenseMod="@Model.Purchase.EspionageDefenseModifier"
-                data-purchase-item-unlocksAtPrice="@Model.Purchase.UnlocksAtTotalEarnings"
-                data-purchase-item-isSinglePurchase="@Model.Purchase.IsSinglePurchase"
-                data-purchase-item-amountOwned="@(Model.HomeVM.PurchasedItems?.SingleOrDefault(s => s.purchasable.Id == Model.Purchase.Id).amount ?? 0)">
-            Purchase
-        </button>
+        <div class="collapse" id="collapse-@Model.Purchase.Id">
+            @if (Model.Purchase.CashModifier > 0)
+            {
+                <p class="card-subtitle mb-2 text-muted">Cash per second: +$<span id="purchase-item-@Model.Purchase.Id-cps">@Model.Purchase.CashModifier</span></p>
+            }
+            @if (Model.Purchase.CashModifier < 0 && Model.HomeVM.Business.Sector?.Id != (int)SectorType.RealEstate)
+            {
+                <p class="card-subtitle mb-2 text-muted">Cash per second: $<span id="purchase-item-@Model.Purchase.Id-cps">@Model.Purchase.CashModifier</span></p>
+            }
+            @if (Model.Purchase.EspionageModifier > 0)
+            {
+                <p class="card-subtitle mb-2 text-muted">Espionage Chance: +<span class="formatted-number" id="purchase-item-@Model.Purchase.Id-espMod" data-number-to-format="@Model.Purchase.EspionageModifier" data-number-format-style="(0%)"></span></p>
+            }
+            @if (Model.Purchase.EspionageDefenseModifier > 0)
+            {
+                <p class="card-subtitle mb-2 text-muted">Espionage Defense: +<span class="formatted-number" id="purchase-item-@Model.Purchase.Id-espDefenseMod" data-number-to-format="@Model.Purchase.EspionageDefenseModifier" data-number-format-style="(0%)"></span></p>
+            }
+            @if (Model.Purchase.MaxEmployeeModifier != 0)
+            {
+                <p class="card-subtitle mb-2 text-muted">Max employees: <span id="purchase-item-@Model.Purchase.Id-maxEmpMod" class="formatted-number" data-number-to-format="@Model.Purchase.MaxEmployeeModifier" data-number-format-style="+0"></span></p>
+            }
+            @if (Model.Purchase.MaxItemAmountModifier > 0)
+            {
+                <p class="card-subtitle mb-2 text-muted">Max Items: +<span id="purchase-item-@Model.Purchase.Id-maxItemMod">@Model.Purchase.MaxItemAmountModifier</span></p>
+            }
+            @if (!string.IsNullOrEmpty(Model.Purchase.Description))
+            {
+                <p class="card-subtitle mb-2 text-muted">
+                    @Model.Purchase.Description
+                </p>
+            }
+            <button type="button"
+                    class="btn btn-primary"
+                    data-purchase-item-id="@Model.Purchase.Id"
+                    data-purchase-item-type="@Model.Purchase.Type.Id"
+                    data-purchase-item-cost="@Model.Purchase.Cost"
+                    data-purchase-item-adjusted-cost="@((Model.HomeVM.AdjustedPurchasableCost(Model.Purchase.Id) ?? Model.Purchase.Cost).ToString("F2"))"
+                    data-purchase-item-cps="@Model.Purchase.CashModifier"
+                    data-purchase-item-PerOwned="@Model.Purchase.PerOwnedModifier"
+                    data-purchase-item-maxEmployeeMod="@Model.Purchase.MaxEmployeeModifier"
+                    data-purchase-item-maxItemMod="@Model.Purchase.MaxItemAmountModifier"
+                    data-purchase-item-espDefenseMod="@Model.Purchase.EspionageDefenseModifier"
+                    data-purchase-item-unlocksAtPrice="@Model.Purchase.UnlocksAtTotalEarnings"
+                    data-purchase-item-isSinglePurchase="@Model.Purchase.IsSinglePurchase"
+                    data-purchase-item-amountOwned="@(Model.HomeVM.PurchasedItems?.SingleOrDefault(s => s.purchasable.Id == Model.Purchase.Id).amount ?? 0)">
+                Purchase
+            </button>
+        </div>
     </div>
 </div>

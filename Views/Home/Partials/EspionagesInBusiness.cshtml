@@ -5,7 +5,7 @@
     @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.Business.BusinessPurchases, 31))
     {
         <li class="list-group-item">
-            <a href="#espionagesCollapse" data-toggle="collapse">Espionages against you: @Model.EspionagesAgainstBusiness.Count</a>
+            <a href="#espionagesCollapse" data-toggle="collapse">Espionages: @Model.EspionagesAgainstBusiness.Count</a>
             <div class="collapse" id="espionagesCollapse">
                 <ul class="list-group list-group-flush">
                     @foreach (var item in Model.EspionagesAgainstBusiness)
@@ -20,6 +20,6 @@
     }
     else
     {
-        <li class="list-group-item">Espionages against you: @Model.EspionagesAgainstBusiness.Count</li>
+        <li class="list-group-item">Espionages: @Model.EspionagesAgainstBusiness.Count</li>
     }
 }
