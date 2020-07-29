@@ -1,21 +1,119 @@
 ﻿<div class="row">
     <div class="col pr-1">
         <ul class="list-group">
-            <li class="list-group-item">Current Cash: <span id="businessCurrentCash" class="formatted-number" data-number-to-format="@Model.CurrentCash"></span></li>
-            <li class="list-group-item">Cash per second: <span id="businessCashPerSecond" class="formatted-number" data-number-to-format="@Model.Business.CashPerSecond" data-number-format-style="$0.00"></span></li>
-            <li class="list-group-item">Lifetime Earnings: <span id="businessLifeTimeEarnings" class="formatted-number" data-number-to-format="@Model.Business.LifeTimeEarnings" data-number-format-style="($0.0a)"></span></li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">attach_money</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Cash</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessCurrentCash" class="formatted-number strong-positive" data-number-to-format="@Model.CurrentCash"></span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">schedule</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Cash-per-second</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessCashPerSecond" class="formatted-number" data-number-to-format="@Model.Business.CashPerSecond" data-number-format-style="$0.00"></span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">account_balance</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Lifetime Earnings</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessLifeTimeEarnings" class="formatted-number" data-number-to-format="@Model.Business.LifeTimeEarnings" data-number-format-style="($0.0a)"></span>
+                        </div>
+                    </div>
+                </div>
+            </li>
         </ul>
 
         <ul class="list-group mt-2">
-            <li class="list-group-item">Espionage Chance: <span id="businessEspionageChance" class="formatted-number" data-number-to-format="@(Model.Business.EspionageChance)" data-number-format-style="%0"></span></li>
-            <li class="list-group-item">Espionage Defense: <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">military_tech</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Espionage Chance</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessEspionageChance" class="formatted-number" data-number-to-format="@(Model.Business.EspionageChance)" data-number-format-style="%0"></span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">security</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Espionage Defense</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessEspionageDefense" class="formatted-number" data-number-to-format="@Model.Business.EspionageDefense" data-number-format-style="%0"></span>
+                        </div>
+                    </div>
+                </div>
+            </li>
         </ul>
     </div>
 
     <div class="col pl-0">
         <ul class="list-group">
-            <li class="list-group-item">Employees: <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees">@(Model.Business.MaxEmployeeAmount)</span></li>
-            <li class="list-group-item">Items: <span id="businessTotalItemsOwned">@Model.Business.AmountOwnedItems</span>/<span id="businessMaxAmountItemsAllowed">@(Model.Business.MaxItemAmount)</span></li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">face</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Employees</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees" class="font-weight-bold">@(Model.Business.MaxEmployeeAmount)</span>                        
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">business_center</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Items</em>
+                        </div>
+                        <div class="row">
+                            <span id="businessTotalItemsOwned">@Model.Business.AmountOwnedItems</span>/<span id="businessMaxAmountItemsAllowed" class="font-weight-bold">@(Model.Business.MaxItemAmount)</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
         </ul>
 
         <ul class="list-group mt-2">
@@ -26,7 +124,21 @@
         <ul class="list-group mt-2">
             @if (Model.Business.Sector != null)
             {
-                <li class="list-group-item">Sector: @Model.Business.Sector.Description</li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-2 pl-0">
+                            <span class="material-icons">public</span>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <em>Sector</em>
+                            </div>
+                            <div class="row">
+                                @Model.Business.Sector.Description
+                            </div>
+                        </div>
+                    </div>
+                </li>
             }
         </ul>
     </div>

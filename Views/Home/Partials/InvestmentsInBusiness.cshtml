@@ -5,7 +5,21 @@
     @if (Model.HasSeekingAlphaProItem)
     {
         <li class="list-group-item">
-            <a href="#investmentsCollapse" data-toggle="collapse">Investments: @Model.TotalInvestmentsInCompany</a>
+            <div class="row">
+                <div class="col-2 pl-0">
+                    <span class="material-icons">trending_up</span>
+                </div>
+                <div class="col">
+                    <a href="#investmentsCollapse" data-toggle="collapse">
+                        <div class="row">
+                            <em>Investments in you</em>
+                        </div>
+                    </a>
+                    <div class="row">
+                        @Model.TotalInvestmentsInCompany
+                    </div>
+                </div>
+            </div>
             <div class="collapse" id="investmentsCollapse">
                 <ul class="list-group list-group-flush">
                     @foreach (var item in Model.InvestmentsInBusiness)
@@ -20,6 +34,20 @@
     }
     else
     {
-        <li class="list-group-item">Investments: @Model.TotalInvestmentsInCompany</li>
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col-2 pl-0">
+                    <span class="material-icons">trending_up</span>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <em>Investments in you</em>
+                    </div>
+                    <div class="row">
+                        @Model.TotalInvestmentsInCompany
+                    </div>
+                </div>
+            </div>
+        </li>
     }
 }

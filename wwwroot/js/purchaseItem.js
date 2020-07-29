@@ -90,8 +90,8 @@ function UpdateTotalEmployed(button) {
 
 function UpdateBusinessOwnedItems(button) {
     var amountOfItemsPurchased = $("#amountOfItemsPurchased-item-" + $(button).attr("data-purchase-item-id"));
-    var adjustedPurchasedAmount = parseInt(amountOfItemsPurchased.text()) + 1;
-    amountOfItemsPurchased.text(adjustedPurchasedAmount);
+    var adjustedPurchasedAmount = parseInt(amountOfItemsPurchased.attr('data-number-to-format')) + 1;
+    amountOfItemsPurchased.attr('data-number-to-format', adjustedPurchasedAmount).trigger('numberChange');
 
     $(button).attr("data-purchase-item-amountOwned", adjustedPurchasedAmount);
 }

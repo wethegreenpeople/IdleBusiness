@@ -114,10 +114,7 @@
     }
     else
     {
-        <div class="col-4">
-            <h2>Register To Play</h2>
-            <a asp-area="Identity" asp-page="/Account/Register">Create an account</a> or <a asp-action="CreateGuestAccount" asp-controller="Home">continue as a guest</a> to start building your business empire
-        </div>
+       <partial name="Partials/Register" />
     }
 </div>
 
@@ -125,6 +122,12 @@
 
 @section Scripts
 {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    </script>
+
     <script type="text/javascript" src="~/js/purchaseItem.js"></script>
 
     <script type="text/javascript">
@@ -134,8 +137,6 @@
                 $("#unreadMessageBadge").text(messageAmount);
             }
         });
-        unreadMessageBadge
-
     </script>
 
     <script type="text/javascript">

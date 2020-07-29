@@ -89,7 +89,6 @@ body {
 }
 
 .disabled-card {
-    pointer-events: none;
     opacity: 0.4;
 }
 
@@ -103,7 +102,59 @@ body {
 
 .bg-card-header {
     background-color: #bbc6c9;
+    font-weight: 300;
+    line-height: 1.2;
 }
+
+.strong-positive {
+    color: #3a9b54;
+    font-weight: bold;
+}
+
+.btn-outline-primary {
+    color: #384144;
+    background-color: #f8fafa;
+    border-color: #4293af;
+}
+
+.btn-outline-primary:hover {
+    color: #f8fafa;
+    background-color: #4293af;
+    border-color: #4293af;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    height: 100px;
+    width: 100px;
+    outline: black;
+    background-size: 100%, 100%;
+    /*border-radius: 50%;
+    border: 1px solid black;*/
+    background-image: none;
+}
+
+.carousel-control-next-icon:after {
+    content: '>';
+    font-size: 55px;
+    color: red;
+}
+
+.carousel-control-prev-icon:after {
+    content: '<';
+    font-size: 55px;
+    color: red;
+}
+
+.material-icons {
+    vertical-align:bottom;
+}
+
+/*.carousel-inner .carousel-item {
+    transition: -webkit-transform 100ms ease;
+    transition: transform 100ms ease;
+    transition: transform 100ms ease, -webkit-transform 100ms ease;
+}*/
 
 /*body:after {
     content: "Alpha";

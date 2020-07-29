@@ -14,6 +14,11 @@
 });
 
 function DisableUnavailablePurchases() {
+    function Disable(button, itemId) {
+        $("#purchase-item-" + itemId).addClass("disabled-card");
+        $(button).prop('disabled', true);
+    }
+
     var items = $("[data-purchase-item-id]");
     var currentCash = parseFloat($("#businessCurrentCash").attr("data-number-to-format"));
     items.each(function () {
@@ -22,19 +27,22 @@ function DisableUnavailablePurchases() {
         var isSinglePurchase = $(this).attr("data-purchase-item-isSinglePurchase") == "True";
         var amountOwned = parseInt($(this).attr("data-purchase-item-amountOwned"));
         var itemType = parseInt($(this).attr("data-purchase-item-type"));
-        if (currentCash < itemCost) { $("#purchase-item-" + itemId).addClass("disabled-card"); }
-        else if (isSinglePurchase && amountOwned >= 1) { $("#purchase-item-" + itemId).addClass("disabled-card"); }
+        if (currentCash < itemCost) { Disable(this, itemId); }
+        else if (isSinglePurchase && amountOwned >= 1) { Disable(this, itemId); }
         else if (itemType == 2) {
             var currentMaxItems = parseInt($("#businessMaxAmountItemsAllowed").text());
             var amountOfOwnedItems = parseInt($("#businessTotalItemsOwned").text());
             var maxItemMod = parseFloat($(this).attr("data-purchase-item-maxItemMod"));
-            if (amountOfOwnedItems >= currentMaxItems && maxItemMod <= 0) $("#purchase-item-" + itemId).addClass("disabled-card");
+            if (amountOfOwnedItems >= currentMaxItems && maxItemMod <= 0) Disable(this, itemId);
 
             if (itemId == "29") { // Intern training item
                 var iternAmount = parseInt($("#amountOfItemsPurchased-item-1").text());
-                if (iternAmount < 30) $("#purchase-item-" + itemId).addClass("disabled-card");
+                if (iternAmount < 30) Disable(this, itemId);                
             }
         }
-        else { $("#purchase-item-" + itemId).removeClass("disabled-card"); }
+        else {
+            $("#purchase-item-" + itemId).removeClass("disabled-card");
+            $(this).prop('disabled', false);
+        }
     });
 }
