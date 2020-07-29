@@ -22,16 +22,11 @@
                 <span data-toggle="tooltip" data-placement="bottom" title="Cost of item">
                     <span class="material-icons" style="margin-left: -5px; margin-right: -5px;">attach_money</span> <span id="purchase-item-@Model.Purchase.Id-cost" class="formatted-number" data-number-to-format="@((Model.HomeVM.AdjustedPurchasableCost(Model.Purchase.Id) ?? Model.Purchase.Cost))" data-number-format-style="($0.0a)"></span>
                 </span>
-                @if (Model.Purchase.CashModifier > 0)
+
+                @if (Model.Purchase.CashModifier != 0)
                 {
                     <span data-toggle="tooltip" data-placement="bottom" title="Cash per second">
-                        <span class="mb-2 ml-2" style="margin-right: -8px;"><span class="material-icons">schedule</span> +$<span id="purchase-item-@Model.Purchase.Id-cps">@Model.Purchase.CashModifier</span></span>
-                    </span>
-                }
-                @if (Model.Purchase.CashModifier < 0 && Model.HomeVM.Business.Sector?.Id != (int)SectorType.RealEstate)
-                {
-                    <span data-toggle="tooltip" data-placement="bottom" title="Cash per second">
-                        <span class="mb-2 ml-2" style="margin-right: -8px;"><span class="material-icons">schedule</span> -$<span id="purchase-item-@Model.Purchase.Id-cps">@Model.Purchase.CashModifier</span></span>
+                        <span class="mb-2 ml-2" style="margin-right: -8px;"><span class="material-icons">schedule</span> <span id="purchase-item-@Model.Purchase.Id-cps" class="formatted-number" data-number-to-format="@Model.Purchase.CashModifier" data-number-format-style="$0.0"></span></span>
                     </span>
                 }
             </div>

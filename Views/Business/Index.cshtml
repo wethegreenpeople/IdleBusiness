@@ -48,27 +48,33 @@
         </div>
     </div>
 
-    <div class="col-4">
-        <div class="card mt-2 mr-2">
-            <h3 class="card-header bg-card-header">@Model.Business.Name's Investments</h3>
-            <div class="card-body bg-light">
-                <partial name="Partials/InvestmentsBusinessHasMade" model="Model" />
+    @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 28))
+    {
+        <div class="col-4">
+            <div class="card mt-2 mr-2">
+                <h3 class="card-header bg-card-header">@Model.Business.Name's Investments</h3>
+                <div class="card-body bg-light">
+                    <partial name="Partials/InvestmentsBusinessHasMade" model="Model" />
+                </div>
             </div>
         </div>
-    </div>
+    }
 
-    <div class="col-4">
-        <div class="card mt-2 mr-2">
-            <h3 class="card-header bg-card-header">@Model.Business.Name's Espionages</h3>
-            <div class="card-body bg-light">
-                <partial name="Partials/EspionagesBusinessHasCommitted" model="Model" />
+    @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 32))
+    {
+        <div class="col-4">
+            <div class="card mt-2 mr-2">
+                <h3 class="card-header bg-card-header">@Model.Business.Name's Espionages</h3>
+                <div class="card-body bg-light">
+                    <partial name="Partials/EspionagesBusinessHasCommitted" model="Model" />
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>
 
 <div class="row">
-    <div class="col-5 mt-5">
+    <div class="col-6 mt-5">
         <div class="card ml-2 mt-2">
             <h3 class="card-header bg-card-header">Invest in @Model.Business.Name</h3>
             <div class="card-body">
@@ -97,9 +103,7 @@
         </div>
     </div>
 
-    <div class="col"></div>
-
-    <div class="col-5 mt-5">
+    <div class="col-6 mt-5">
         <div class="card mt-2 ml-2">
             <h3 class="card-header bg-card-header">Commit Espionage against @Model.Business.Name</h3>
             <div class="card-body">
@@ -129,7 +133,7 @@
 </div>
 
 <div class="row">
-    <div class="col-5">
+    <div class="col-6">
         @if (Model.HasCurrentEntrepreneurInvestedInBusiness)
         {
             <div class="card ml-2 mt-2">
@@ -171,7 +175,7 @@
 </div>
 
 <div class="row">
-    <div class="col-5">
+    <div class="col-6">
         <div class="card ml-2 mt-2">
             <h3 class="card-header bg-card-header">
                 Group Invest in @Model.Business.Name
