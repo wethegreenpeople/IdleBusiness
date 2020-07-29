@@ -3,20 +3,15 @@
 @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 33))
 {
     <form asp-controller="Business" asp-action="GroupInvestInCompany" asp-route-companyToInvestInId="@Model.Business.Id" asp-route-businessSendingRequest="@Model.CurrentEntrepreneur.Business.Id" method="post">
-        <div class="card mr-2" style="width: 24rem;">
-            <div class="card-body">
-                <h5 class="card-title">Group invest in @Model.Business.Name</h5>
-                <p class="card-subtitle mb-2 text-muted">Propose a group investment with one other business. Both businesses will invest the same amount, and if accepted, split the profits at market close</p>
-                <div class="form-group">
-                    <label for="investmentAmount">Company to partner with</label>
-                    <select class="form-control" id="companyToPartnerWith" name="companyToPartnerWith"></select>
+        <p class="card-subtitle mb-2 text-muted">Propose a group investment with one other business. Both businesses will invest the same amount, and if accepted, split the profits at market close</p>
+        <div class="form-group">
+            <label for="investmentAmount">Company to partner with</label>
+            <select class="form-control" id="companyToPartnerWith" name="companyToPartnerWith"></select>
 
-                    <label for="investmentAmount">Investment Amount</label>
-                    <input type="text" class="form-control" id="investmentAmount" name="investmentAmount" pattern="\d*">
-                </div>
-                <button type="submit" class="btn btn-primary">Propose Investment</button>
-            </div>
+            <label for="investmentAmount">Investment Amount</label>
+            <input type="text" class="form-control" id="investmentAmount" name="investmentAmount" pattern="\d*">
         </div>
+        <button type="submit" class="btn btn-primary">Propose Investment</button>
 
     </form>
 }

@@ -2,27 +2,22 @@
 
 @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 32))
 {
-    <div class="card mr-2 mt-2" style="width: 24rem;">
-        <div class="card-body">
-            <h5 class="card-title">Espionages @Model.Business.Name has commited</h5>
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th scope="col">Business</th>
-                    </tr>
-                </thead>
-                @if (Model.CurrentBusinessEspionages != null)
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Business</th>
+            </tr>
+        </thead>
+        @if (Model.CurrentBusinessEspionages != null)
+        {
+            <tbody>
+                @foreach (var item in Model.CurrentBusinessEspionages)
                 {
-                    <tbody>
-                        @foreach (var item in Model.CurrentBusinessEspionages)
-                        {
-                            <tr>
-                                <td><a asp-controller="Business" asp-action="Index" asp-route-id="@item.BusinessToInvestId">@item.BusinessToInvest.Name</a></td>
-                            </tr>
-                        }
-                    </tbody>
+                    <tr>
+                        <td><a asp-controller="Business" asp-action="Index" asp-route-id="@item.BusinessToInvestId">@item.BusinessToInvest.Name</a></td>
+                    </tr>
                 }
-            </table>
-        </div>
-    </div>
+            </tbody>
+        }
+    </table>
 }
