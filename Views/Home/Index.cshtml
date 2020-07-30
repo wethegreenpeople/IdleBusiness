@@ -11,30 +11,45 @@
     {
         @if (Model.Business == null || Model.Business.Name == null)
         {
-            <div class="col-4">
-                <h2>Create your business</h2>
-                <form asp-controller="Home" asp-action="CreateBusiness" method="post">
-                    <div class="form-group">
-                        <label for="businessName">Business Name</label>
-                        <input type="text" class="form-control" id="businessName" name="businessName">
+            <div class="col-md-4">
+                <div class="card ml-2 mr-2 mt-2 w-100">
+                    <h3 class="card-header bg-card-header">
+                        Create your business
+                    </h3>
+
+                    <div class="card-body bg-light">
+                        <form asp-controller="Home" asp-action="CreateBusiness" method="post">
+                            <div class="form-group">
+                                <label for="businessName">Business Name</label>
+                                <input type="text" class="form-control" id="businessName" name="businessName">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Business!</button>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Business!</button>
-                </form>
+                </div>
             </div>
         }
         else if (Model.Business.Sector == null && Model.Business.LifeTimeEarnings > 10000000)
         {
-            <div class="col-4">
-                <h2>Add a sector!</h2>
-                <form asp-controller="Home" asp-action="AddSectorToBusiness" method="post">
-                    <div class="form-group">
-                        <label for="businessProduct">Your business sector</label>
-                        <input name="businessId" value="@Model.Business.Id" hidden />
-                        <select class="form-control" id="businessSector" name="businessSector" asp-items="Model.AvailableSectors"></select>
-                    </div>
+            <div class="col-md-4">
+                <div class="card ml-2 mr-2 mt-2 w-100">
+                    <h3 class="card-header bg-card-header">
+                        Add a sector!
+                    </h3>
 
-                    <button type="submit" class="btn btn-primary">Add a sector</button>
-                </form>
+                    <div class="card-body bg-light">
+                        <form asp-controller="Home" asp-action="AddSectorToBusiness" method="post">
+                            <div class="form-group">
+                                <label for="businessProduct">Your business sector</label>
+                                <input name="businessId" value="@Model.Business.Id" hidden />
+                                <select class="form-control" id="businessSector" name="businessSector" asp-items="Model.AvailableSectors"></select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add a sector</button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         }
         else
@@ -51,7 +66,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="card ml-2 mr-2 mt-2 w-100">
                         <h3 class="card-header bg-card-header" data-toggle="collapse" data-target="#mostSuccessCollapse">
@@ -84,25 +99,25 @@
                                 <div class="tab-pane fade show active" id="nav-employees" role="tabpanel">
                                     <div class="row">
                                         @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 1))
-                                    {
-                                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
-                                    }
+                                        {
+                                            <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                                        }
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="nav-items" role="tabpanel">
                                     <div class="row">
                                         @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 2))
-                                    {
-                                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
-                                    }
+                                        {
+                                            <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                                        }
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="nav-realestate" role="tabpanel">
                                     <div class="row">
                                         @foreach (var item in Model.Purchasables.Where(s => s.Type.Id == 3))
-                                    {
-                                        <partial name="Partials/PurchasableCard" model="(Model, item)" />
-                                    }
+                                        {
+                                            <partial name="Partials/PurchasableCard" model="(Model, item)" />
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -114,7 +129,7 @@
     }
     else
     {
-       <partial name="Partials/Register" />
+        <partial name="Partials/Register" />
     }
 </div>
 
@@ -122,6 +137,29 @@
 
 @section Scripts
 {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#mostSuccessfulTable').DataTable({
+                "lengthChange": false,
+                "searching": false,
+                "paging": false,
+                "bInfo": false,
+                "order": [[3, "desc"]],
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                    },
+                ]
+            });
+
+            $('#mostSuccessfulTable tbody').on('click', 'tr', function () {
+                var data = table.row(this).data();
+                window.location.href = "/business/index/" + data[0];
+            });
+        });
+    </script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip()

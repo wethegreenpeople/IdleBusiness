@@ -9,6 +9,8 @@ namespace IdleBusiness.Models
 {
     public class Entrepreneur : IdentityUser
     {
+        public int Score { get; set; }
+
         public virtual int BusinessId { get; set; }
         public virtual Business Business { get; set; }
     }

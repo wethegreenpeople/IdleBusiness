@@ -496,6 +496,9 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("BusinessId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
                     b.HasIndex("BusinessId")
                         .IsUnique();
 

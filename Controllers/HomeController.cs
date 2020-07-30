@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Components.Forms;
 using IdleBusiness.Helpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Components.RenderTree;
 
 namespace IdleBusiness.Controllers
 {
@@ -26,6 +27,7 @@ namespace IdleBusiness.Controllers
         private readonly BusinessHelper _businessHelper;
         private readonly PurchasableHelper _purchasableHelper;
         private readonly ApplicationHelper _appHelper;
+        private readonly EntrepreneurHelper _entrepreneurHelper;
 
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
@@ -36,6 +38,7 @@ namespace IdleBusiness.Controllers
             _purchasableHelper = new PurchasableHelper(_context);
             _signInManager = signInManager;
             _appHelper = new ApplicationHelper(_logger);
+            _entrepreneurHelper = new EntrepreneurHelper(_context, _logger);
         }
 
         public async Task<IActionResult> Index()
@@ -48,6 +51,7 @@ namespace IdleBusiness.Controllers
                 if (user.Business != null)
                 {
                     var business = await _businessHelper.UpdateGainsSinceLastCheckIn(user.Business.Id);
+                    business.Owner = await _entrepreneurHelper.UpdateEntrepreneurScore(user.Business.Id);
 
                     viewModel.Business = business;
 
@@ -67,7 +71,10 @@ namespace IdleBusiness.Controllers
                 }
             }
 
-            viewModel.MostSuccessfulBusinesses = _context.Business.Where(s => s.Cash != 0 && s.Name != null).OrderByDescending(s => s.Cash).Take(5).ToList();
+            viewModel.MostSuccessfulBusinesses = _context.Business
+                .Include(s => s.Owner)
+                .Where(s => s.Cash != 0 && s.Name != null)
+                .OrderByDescending(s => s.Owner.Score).Take(5).ToList();
             viewModel.AvailableSectors = _context.Sectors.Select(s => new SelectListItem() { Value = s.Id.ToString(), Text = $"{s.Name} ({s.Description})" }).ToList();
 
             if (user != null && user.Business != null) viewModel.PurchasedItems = user.Business.BusinessPurchases.Select(s => (s.Purchase, s.AmountOfPurchases)).ToList();

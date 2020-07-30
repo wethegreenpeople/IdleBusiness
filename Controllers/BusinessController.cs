@@ -22,12 +22,14 @@ namespace IdleBusiness.Controllers
         private readonly ApplicationDbContext _context;
         private readonly BusinessHelper _businessHelper;
         private readonly ILogger<BusinessController> _logger;
+        private readonly EntrepreneurHelper _entrepreneurHelper;
 
         public BusinessController(ApplicationDbContext context, ILogger<BusinessController> logger)
         {
             _context = context;
             _logger = logger;
             _businessHelper = new BusinessHelper(context, _logger);
+            _entrepreneurHelper = new EntrepreneurHelper(context, _logger);
         }
 
         [Authorize]
@@ -35,6 +37,7 @@ namespace IdleBusiness.Controllers
         {
             var vm = new BusinessIndexVM();
             var business = await _businessHelper.UpdateGainsSinceLastCheckIn(id);
+            business.Owner = await _entrepreneurHelper.UpdateEntrepreneurScore(id);
             vm.Business = business;
             vm.CurrentEntrepreneur = await GetCurrentEntrepreneur();
             vm.CurrentBusinessInvestments = await _businessHelper.GetInvestmentsCompanyHasMade(id);

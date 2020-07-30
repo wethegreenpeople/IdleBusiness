@@ -94,7 +94,7 @@
                             <em>Employees</em>
                         </div>
                         <div class="row">
-                            <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees" class="font-weight-bold">@(Model.Business.MaxEmployeeAmount)</span>                        
+                            <span id="businessTotalEmployed">@Model.TotalEmployed</span>/<span id="businessMaxEmployees" class="formatted-number font-weight-bold" data-number-to-format="@(Model.Business.MaxEmployeeAmount)" data-number-format-style="0"></span>                        
                         </div>
                     </div>
                 </div>
@@ -140,6 +140,24 @@
                     </div>
                 </li>
             }
+        </ul>
+
+        <ul class="list-group mt-2">
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">score</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Score</em>
+                        </div>
+                        <div class="row">
+                            @Model.Business.Owner.Score
+                        </div>
+                    </div>
+                </div>
+            </li>
         </ul>
     </div>
 </div>

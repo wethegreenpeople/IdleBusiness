@@ -62,14 +62,16 @@ function UpdateEspionageDefense(button) {
 function UpdateEspionage(button) {
     var espionageIncrease = parseFloat($(button).attr("data-purchase-item-ei"));
     if (!Number.isNaN(espionageIncrease)) {
-        var currentEspionage = parseFloat($("#businessEspionageChance").text()) / 100;
-        $("#businessEspionageChance").text(parseFloat((currentEspionage + espionageIncrease) * 100).toFixed(2));
+        var currentEspionage = parseFloat($("#businessEspionageChance").attr("data-number-to-format"));
+        $("#businessEspionageChance").attr("data-number-to-format", parseFloat((currentEspionage + espionageIncrease))).trigger('numberChange');
     }
 }
 
 function UpdateBusinessMaxEmployees(button) {
     if ($(button).attr("data-purchase-item-type") == 3) {
-        $("#businessMaxEmployees").text(parseInt(button.getAttribute("data-purchase-item-maxEmployeeMod")) + parseInt($("#businessTotalEmployed").text()));
+        var currentMaxEmp = parseInt($("#businessMaxEmployees").attr("data-number-to-format"));
+        var maxIncrease = parseInt(button.getAttribute("data-purchase-item-maxEmployeeMod"));
+        $("#businessMaxEmployees").attr("data-number-to-format", currentMaxEmp + maxIncrease).trigger('numberChange');
     }
 }
 
@@ -141,7 +143,7 @@ function ServerPurchaseItem() {
         });
 
         ResetValues();
-    }, 250))
+    }, 1000))
 }
 
 $(document).ready(function () {

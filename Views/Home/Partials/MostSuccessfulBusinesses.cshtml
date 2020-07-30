@@ -1,8 +1,23 @@
-﻿<ul class="list-group">
-    @foreach (var item in Model.MostSuccessfulBusinesses)
-    {
-        <li class="list-group-item">
-            <a asp-controller="Business" asp-action="Index" asp-route-id="@item.Id">@item.Name - <span class="formatted-number" data-number-to-format="@item.Cash" data-number-format-style="($0.00a)"></span></a>
-        </li>
-    }
-</ul>
+﻿@model IdleBusiness.Views.Models.HomeIndexVM;
+
+<table id="mostSuccessfulTable" class="table table-bordered table-hover table-sm" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Name</td>
+            <td>Current Cash</td>
+            <td>Score</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.MostSuccessfulBusinesses)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td><span class="formatted-number" data-number-to-format="@item.Cash" data-number-format-style="$0a"></span></td>
+                <td><span class="formatted-number" data-number-to-format="@item.Owner.Score" data-number-format-style="0"></span></td>
+            </tr>
+        }
+    </tbody>
+</table>
