@@ -28,6 +28,10 @@ namespace IdleBusiness.Helpers
             {
                 _logger.LogError(ex, "Concurrency issue");
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving changes");
+            }
 
             return false;
         }

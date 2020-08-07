@@ -20,38 +20,44 @@ namespace IdleBusiness.Helpers
 
         public void AwardInvestmentProfits()
         {
-            var investments = _context.Investments
-                .Include(s => s.BusinessToInvest)
-                .Include(s => s.InvestingBusiness)
-                .Where(s => s.InvestmentExpiration.Date <= DateTime.UtcNow)
+            var businessInvestments = _context.BusinessInvestments
+                .Include(s => s.Business)
+                .Include(s => s.Investment)
+                .Where(s => s.Investment.InvestmentExpiration.Date <= DateTime.UtcNow)
                 .Where(s => s.InvestmentType == InvestmentType.Investment)
-                .ToList();
+                .ToList()
+                .GroupBy(s => s.InvestmentId);
+                
 
-            foreach (var item in investments)
+            foreach (var item in businessInvestments)
             {
-                var investorsProfit = InvestmentHelper.CalculateInvestmentProfit(item);
+                var investorInvestment = item.First(s => s.InvestmentDirection == InvestmentDirection.Investor);
+                var investeeInvestment = item.First(s => s.InvestmentDirection == InvestmentDirection.Investee);
+                var investorsProfit = InvestmentHelper.CalculateInvestmentProfit(investeeInvestment);
 
-                item.InvestingBusiness.Cash += investorsProfit;
-                item.InvestingBusiness.CashPerSecond += item.InvestmentAmount;
-                item.BusinessToInvest.CashPerSecond -= item.InvestmentAmount;
-
-                item.InvestingBusiness.ReceivedMessages.Add(new Message()
+                // Investor
+                investorInvestment.Business.Cash += investorsProfit;
+                investorInvestment.Business.CashPerSecond += investorInvestment.Investment.InvestmentAmount;
+                investorInvestment.Business.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"You gained ${investorsProfit.ToKMB()} from your investments in {item.BusinessToInvest.Name}",
-                    ReceivingBusinessId = item.InvestingBusinessId,
+                    MessageBody = $"You gained ${investorsProfit.ToKMB()} from your investments in {investeeInvestment.Business.Name}",
+                    ReceivingBusinessId = investorInvestment.Business.Id,
                 });
 
-                item.BusinessToInvest.ReceivedMessages.Add(new Message()
+                // Investee
+                investeeInvestment.Business.CashPerSecond -= investeeInvestment.Investment.InvestmentAmount;
+                investeeInvestment.Business.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"After investments were removed, you lost ${item.InvestmentAmount.ToKMB()} CPS",
-                    ReceivingBusinessId = item.BusinessToInvestId,
+                    MessageBody = $"After investments were removed, you lost ${investeeInvestment.Investment.InvestmentAmount.ToKMB()} CPS",
+                    ReceivingBusinessId = investeeInvestment.Business.Id,
                 });
 
-                _context.Business.Update(item.InvestingBusiness);
-                _context.Business.Update(item.BusinessToInvest);
-                _context.Investments.Remove(item);
+                _context.Business.Update(investorInvestment.Business);
+                _context.Business.Update(investeeInvestment.Business);
+                _context.BusinessInvestments.Remove(investorInvestment);
+                _context.BusinessInvestments.Remove(investeeInvestment);
             }
 
             _context.SaveChanges();
@@ -59,25 +65,26 @@ namespace IdleBusiness.Helpers
 
         public void RemoveEspionageInvestments()
         {
-            var espionages = _context.Investments
-                .Include(s => s.BusinessToInvest)
+            var espionages = _context.BusinessInvestments
+                .Include(s => s.Business)
+                .Include(s => s.Investment)
                 .Where(s => s.InvestmentType == InvestmentType.Espionage)
-                .Where(s => s.InvestmentExpiration.Date <= DateTime.UtcNow)
+                .Where(s => s.Investment.InvestmentExpiration.Date <= DateTime.UtcNow)
                 .ToList();
 
             foreach (var item in espionages)
             {
-                item.BusinessToInvest.CashPerSecond += item.InvestmentAmount;
+                item.Business.CashPerSecond += item.Investment.InvestmentAmount;
 
-                item.BusinessToInvest.ReceivedMessages.Add(new Message()
+                item.Business.ReceivedMessages.Add(new Message()
                 {
                     DateReceived = DateTime.UtcNow,
-                    MessageBody = $"After espionages were removed, you gained ${item.InvestmentAmount.ToKMB()} CPS",
-                    ReceivingBusinessId = item.BusinessToInvestId,
+                    MessageBody = $"After espionages were removed, you gained ${item.Investment.InvestmentAmount.ToKMB()} CPS",
+                    ReceivingBusinessId = item.BusinessId,
                 });
 
-                _context.Business.Update(item.BusinessToInvest);
-                _context.Investments.Remove(item);
+                _context.Business.Update(item.Business);
+                _context.BusinessInvestments.Remove(item);
             }
 
             _context.SaveChanges();

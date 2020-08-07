@@ -72,6 +72,8 @@
     <Compile Remove="Migrations\20200720225930_doot.Designer.cs" />
     <Compile Remove="Migrations\20200720230401_dootl.cs" />
     <Compile Remove="Migrations\20200720230401_dootl.Designer.cs" />
+    <Compile Remove="Migrations\20200807191045_djfhfufh.cs" />
+    <Compile Remove="Migrations\20200807191045_djfhfufh.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

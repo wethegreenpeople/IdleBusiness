@@ -36,13 +36,13 @@ namespace IdleBusiness.Helpers
             await _context.SaveChangesAsync();
         }
 
-        public async Task PerformSpecialOnPurchaseActions(Purchasable purchasable, Business business)
+        public async Task<string> PerformSpecialOnPurchaseActions(Purchasable purchasable, Business business)
         {
             var repo = new SpecialPurchasableRepo(_context, this);
             var special = repo.GetSpecialPurchasable(purchasable, business);
-            if (special == null) return;
+            if (special == null) return null;
 
-            await special.OnPurchaseEffect();
+            return (await special.OnPurchaseEffect()).ToString();
         }
 
         public async Task<Business> ApplyItemStatsToBussiness(Purchasable purchasable, Business business, int purchaseCount)

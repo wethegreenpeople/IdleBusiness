@@ -34,7 +34,7 @@ namespace IdleBusiness.Helpers
         public async Task<Business> UpdateGainsSinceLastCheckIn(int businessId)
         {
             var business = await _context.Business
-                .Include(s => s.Investments)
+                .Include(s => s.BusinessInvestments)
                 .SingleOrDefaultAsync(s => s.Id == businessId);
             var gains = await CalculateGainsSinceLastCheckIn(businessId);
 
@@ -58,42 +58,80 @@ namespace IdleBusiness.Helpers
             return business;
         }
 
-        public async Task<List<Investment>> GetInvestmentsInCompany(int businessId)
+        public async Task<List<(BusinessInvestment Investee, BusinessInvestment Investor)>> GetInvestmentsInCompany(int businessId)
         {
-            return await _context.Investments
-                .Where(s => s.BusinessToInvest.Id == businessId)
+            var investments = await _context.BusinessInvestments
+                .Include(s => s.Business)
+                .Include(s => s.Investment)
+                .Where(s => s.BusinessId == businessId)
                 .Where(s => s.InvestmentType == InvestmentType.Investment)
-                .Include(s => s.InvestingBusiness)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investee)
                 .ToListAsync();
-        }
 
-        public async Task<List<Investment>> GetInvestmentsCompanyHasMade(int businessId)
-        {
-            return await _context.Investments
-                .Where(s => s.InvestingBusinessId == businessId)
+            return (await _context.BusinessInvestments
+                .Include(s => s.Investment)
+                .Include(s => s.Business)
+                .Where(s => s.BusinessId != businessId)
                 .Where(s => s.InvestmentType == InvestmentType.Investment)
-                .Include(s => s.BusinessToInvest)
-                .Include(s => s.InvestingBusiness)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investor)
+                .ToListAsync())
+                .Where(s => investments.Any(d => d.Investment.Id == s.Investment.Id))
+                .Select(s => (Investee: investments.Single(d => d.Investment.Id == s.Investment.Id), Investor: s))
+                .ToList();
+        }
+
+        public async Task<List<(BusinessInvestment Investee, BusinessInvestment Investor)>> GetInvestmentsCompanyHasMade(int businessId)
+        {
+            var investments = await _context.BusinessInvestments
+                .Include(s => s.Business)
+                .Include(s => s.Investment)
+                .Where(s => s.BusinessId == businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Investment)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investor)
+                .ToListAsync();
+
+            return (await _context.BusinessInvestments
+                .Include(s => s.Investment)
+                .Include(s => s.Business)
+                .Where(s => s.BusinessId != businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Investment)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investee)
+                .ToListAsync())
+                .Where(s => investments.Any(d => d.Investment.Id == s.Investment.Id))
+                .Select(s => (Investee: s, Investor: investments.Single(d => d.Investment.Id == s.Investment.Id)))
+                .ToList();
+        }
+
+        public async Task<List<BusinessInvestment>> GetEspionagesAgainstCompany(int businessId)
+        {
+            return await _context.BusinessInvestments
+                .Include(s => s.Investment)
+                .Where(s => s.BusinessId == businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Espionage)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investee)
                 .ToListAsync();
         }
 
-        public async Task<List<Investment>> GetEspionagesAgainstCompany(int businessId)
+        public async Task<List<(BusinessInvestment Investee, BusinessInvestment Investor)>> GetEspionagesCompanyHasComitted(int businessId)
         {
-            return await _context.Investments
-                .Where(s => s.BusinessToInvest.Id == businessId)
+            var espionages = await _context.BusinessInvestments
+                .Include(s => s.Business)
+                .Include(s => s.Investment)
+                .Where(s => s.BusinessId == businessId)
                 .Where(s => s.InvestmentType == InvestmentType.Espionage)
-                .Include(s => s.InvestingBusiness)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investor)
                 .ToListAsync();
-        }
 
-        public async Task<List<Investment>> GetEspionagesCompanyHasComitted(int businessId)
-        {
-            return await _context.Investments
-                .Where(s => s.InvestingBusinessId == businessId)
+            return (await _context.BusinessInvestments
+                .Include(s => s.Investment)
+                .Include(s => s.Business)
+                .Where(s => s.BusinessId != businessId)
                 .Where(s => s.InvestmentType == InvestmentType.Espionage)
-                .Include(s => s.BusinessToInvest)
-                .Include(s => s.InvestingBusiness)
-                .ToListAsync();
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investee)
+                .ToListAsync())
+                .Where(s => espionages.Any(d => d.Investment.Id == s.Investment.Id))
+                .Select(s => (Investee: s, Investor: espionages.Single(d => d.Investment.Id == s.Investment.Id)))
+                .ToList();
         }
     }
 }

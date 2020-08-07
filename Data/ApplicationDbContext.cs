@@ -20,6 +20,7 @@ namespace IdleBusiness.Data
         public virtual DbSet<Sector> Sectors { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<BusinessInvestment> BusinessInvestments { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -46,21 +47,18 @@ namespace IdleBusiness.Data
                 .WithMany(s => s.BusinessPurchases)
                 .HasForeignKey(s => s.PurchaseId);
 
-            modelBuilder.Entity<Investment>()
-                .HasOne(s => s.BusinessToInvest)
-                .WithMany(s => s.Investments)
-                .HasForeignKey(s => s.BusinessToInvestId);
+            modelBuilder.Entity<BusinessInvestment>()
+                .HasKey(s => new { s.BusinessId, s.InvestmentId });
 
-            modelBuilder.Entity<Investment>()
-                .HasOne(s => s.PartnerBusiness)
-                .WithMany(s => s.GroupInvestments)
-                .HasForeignKey(s => s.PartnerBusinessId)
-                .IsRequired(false);
+            modelBuilder.Entity<BusinessInvestment>()
+                .HasOne(s => s.Business)
+                .WithMany(s => s.BusinessInvestments)
+                .HasForeignKey(s => s.BusinessId);
 
-            modelBuilder.Entity<Business>()
-                .HasMany(s => s.Investments)
-                .WithOne(s => s.BusinessToInvest)
-                .HasForeignKey(s => s.BusinessToInvestId);
+            modelBuilder.Entity<BusinessInvestment>()
+                .HasOne(s => s.Investment)
+                .WithMany(s => s.BusinessInvestments)
+                .HasForeignKey(s => s.InvestmentId);
 
             modelBuilder.Entity<Business>()
                 .HasOne(s => s.Sector)

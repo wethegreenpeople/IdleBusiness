@@ -23,15 +23,15 @@ namespace IdleBusiness.Purchasables
         }
 
         public Purchasable Purchasable { get; set; }
-        public Task AfterPurchaseEffect() => Task.CompletedTask;
+        public Task<object> AfterPurchaseEffect() => null;
 
-        public async Task OnPurchaseEffect()
+        public async Task<object> OnPurchaseEffect()
         {
             var interns = _business.BusinessPurchases
                 .Where(s => s.PurchaseId == 1)
                 .FirstOrDefault();
             var amountOfInternsToRemove = 30;
-            if (interns.AmountOfPurchases < amountOfInternsToRemove) return;
+            if (interns.AmountOfPurchases < amountOfInternsToRemove) return null;
 
             interns.AmountOfPurchases -= amountOfInternsToRemove;
 
@@ -50,6 +50,8 @@ namespace IdleBusiness.Purchasables
             _business.CashPerSecond -= amountOfInternsToRemove;
             _context.Business.Update(_business);
             _context.SaveChanges();
+
+            return new PurchasableJsonReturn().CreateJsonReturn("29", $"Interns converted into {randomPurchasable.Purchase.Name}", Purchasables.AfterPurchaseEffect.LockAfterPurchase);
         }
     }
 }

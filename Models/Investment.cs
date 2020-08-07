@@ -14,16 +14,7 @@ namespace IdleBusiness.Models
         public double InvestedBusinessCashPerSecondAtInvestment { get; set; }
         public InvestmentType InvestmentType { get; set; }
 
-
-        public int BusinessToInvestId { get; set; }
-        public virtual Business BusinessToInvest { get; set; }
-
-        public int InvestingBusinessId { get; set; }
-        public virtual Business InvestingBusiness { get; set; }
-
-        public int PartnerBusinessId { get; set; }
-        public virtual Business PartnerBusiness { get; set; }
-
+        public virtual ICollection<BusinessInvestment> BusinessInvestments { get; set; } = new List<BusinessInvestment>();
     }
 
     public enum InvestmentType

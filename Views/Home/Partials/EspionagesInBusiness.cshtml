@@ -25,7 +25,7 @@
                     @foreach (var item in Model.EspionagesAgainstBusiness)
                     {
                         <li class="list-group-item">
-                            <a asp-controller="Business" asp-action="Index" asp-route-id="@item.InvestingBusinessId">@item.InvestingBusiness.Name</a>
+                            <a asp-controller="Business" asp-action="Index" asp-route-id="@item.BusinessId">@item.Business.Name</a>
                         </li>
                     }
                 </ul>

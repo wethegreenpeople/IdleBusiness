@@ -27,7 +27,7 @@ namespace IdleBusiness.Models
         public virtual Sector Sector { get; set; }
         public virtual Entrepreneur Owner { get; set; }
         public virtual ICollection<BusinessPurchase> BusinessPurchases { get; set; }
-        public virtual ICollection<Investment> Investments { get; set; } = new List<Investment>();
+        public virtual ICollection<BusinessInvestment> BusinessInvestments { get; set; } = new List<BusinessInvestment>();
         public virtual ICollection<Investment> GroupInvestments { get; set; } = new List<Investment>();
         public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
         public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();

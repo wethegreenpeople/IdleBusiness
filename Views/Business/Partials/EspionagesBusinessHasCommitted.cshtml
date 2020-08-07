@@ -14,7 +14,7 @@
                 @foreach (var item in Model.CurrentBusinessEspionages)
                 {
                     <tr>
-                        <td><a asp-controller="Business" asp-action="Index" asp-route-id="@item.BusinessToInvestId">@item.BusinessToInvest.Name</a></td>
+                        <td><a asp-controller="Business" asp-action="Index" asp-route-id="@item.Investee.Business.Id">@item.Investee.Business.Name</a></td>
                     </tr>
                 }
             </tbody>

@@ -74,6 +74,27 @@ namespace IdleBusiness.Migrations
                     b.ToTable("Business");
                 });
 
+            modelBuilder.Entity("IdleBusiness.Models.BusinessInvestment", b =>
+                {
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvestmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvestmentDirection")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvestmentType")
+                        .HasColumnType("int");
+
+                    b.HasKey("BusinessId", "InvestmentId");
+
+                    b.HasIndex("InvestmentId");
+
+                    b.ToTable("BusinessInvestments");
+                });
+
             modelBuilder.Entity("IdleBusiness.Models.BusinessPurchase", b =>
                 {
                     b.Property<int>("BusinessId")
@@ -98,7 +119,7 @@ namespace IdleBusiness.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("BusinessToInvestId")
+                    b.Property<int?>("BusinessId")
                         .HasColumnType("int");
 
                     b.Property<double>("InvestedBusinessCashAtInvestment")
@@ -106,9 +127,6 @@ namespace IdleBusiness.Migrations
 
                     b.Property<double>("InvestedBusinessCashPerSecondAtInvestment")
                         .HasColumnType("double");
-
-                    b.Property<int>("InvestingBusinessId")
-                        .HasColumnType("int");
 
                     b.Property<double>("InvestmentAmount")
                         .HasColumnType("double");
@@ -119,16 +137,9 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("InvestmentType")
                         .HasColumnType("int");
 
-                    b.Property<int>("PartnerBusinessId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("BusinessToInvestId");
-
-                    b.HasIndex("InvestingBusinessId");
-
-                    b.HasIndex("PartnerBusinessId");
+                    b.HasIndex("BusinessId");
 
                     b.ToTable("Investments");
                 });
@@ -512,6 +523,21 @@ namespace IdleBusiness.Migrations
                         .HasForeignKey("SectorId");
                 });
 
+            modelBuilder.Entity("IdleBusiness.Models.BusinessInvestment", b =>
+                {
+                    b.HasOne("IdleBusiness.Models.Business", "Business")
+                        .WithMany("BusinessInvestments")
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdleBusiness.Models.Investment", "Investment")
+                        .WithMany("BusinessInvestments")
+                        .HasForeignKey("InvestmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("IdleBusiness.Models.BusinessPurchase", b =>
                 {
                     b.HasOne("IdleBusiness.Models.Business", "Business")
@@ -529,21 +555,9 @@ namespace IdleBusiness.Migrations
 
             modelBuilder.Entity("IdleBusiness.Models.Investment", b =>
                 {
-                    b.HasOne("IdleBusiness.Models.Business", "BusinessToInvest")
-                        .WithMany("Investments")
-                        .HasForeignKey("BusinessToInvestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("IdleBusiness.Models.Business", "InvestingBusiness")
-                        .WithMany()
-                        .HasForeignKey("InvestingBusinessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("IdleBusiness.Models.Business", "PartnerBusiness")
+                    b.HasOne("IdleBusiness.Models.Business", null)
                         .WithMany("GroupInvestments")
-                        .HasForeignKey("PartnerBusinessId");
+                        .HasForeignKey("BusinessId");
                 });
 
             modelBuilder.Entity("IdleBusiness.Models.Message", b =>

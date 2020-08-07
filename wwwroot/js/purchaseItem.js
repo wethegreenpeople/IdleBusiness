@@ -98,6 +98,16 @@ function UpdateBusinessOwnedItems(button) {
     $(button).attr("data-purchase-item-amountOwned", adjustedPurchasedAmount);
 }
 
+function SpecialPurchaseActions(button) {
+    var purchaseId = button.getAttribute("data-purchase-item-id");
+    if (purchaseId == 29) { // specialized training
+        var iternAmount = parseInt($("#amountOfItemsPurchased-item-1").attr("data-number-to-format"));
+        var totalEmployedAmount = parseInt($("#businessTotalEmployed").attr("data-number-to-format"));
+        $("#amountOfItemsPurchased-item-1").attr("data-number-to-format", iternAmount - 30).trigger('numberChange');
+        $("#businessTotalEmployed").attr("data-number-to-format", totalEmployedAmount - 30);
+    }
+}
+
 function UiPurchaseItem() {
     $('[data-purchase-item-id]').click(function () {
         event.stopPropagation();
@@ -120,6 +130,7 @@ function UiPurchaseItem() {
         UpdateBusinessMaxItems(this);
 
         DisableUnavailablePurchases();
+        SpecialPurchaseActions(this);
     });
 }
 
@@ -135,6 +146,13 @@ function ServerPurchaseItem() {
             headers: {
             },
             success: function (data) {
+                var result = jQuery.parseJSON(data);
+                if (result.AfterPurchase == 1) window.location.href = "/";
+                if (result.Message != "") {
+                    $("#simpleModalMessage").text(result.Message);
+                    $('#simpleModal').modal('show')
+                }
+                console.log(result);
             },
             error: function (data) {
                 console.log(data);

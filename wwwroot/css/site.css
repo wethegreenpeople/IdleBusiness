@@ -149,6 +149,17 @@ body {
 .material-icons {
     vertical-align:bottom;
 }
+.alert-primary {
+    color: #48414c;
+    background-color: #b6efb1;
+    border-color: #48414c;
+}
+
+.alert-danger {
+    color: #48414c;
+    background-color: #f8dadc;
+    border-color: #48414c;
+}
 
 /*.carousel-inner .carousel-item {
     transition: -webkit-transform 100ms ease;

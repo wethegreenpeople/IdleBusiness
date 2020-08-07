@@ -9,7 +9,7 @@ namespace IdleBusiness.Purchasables
     public interface ISpecialPurchasable
     {
         Purchasable Purchasable { get; set; }
-        Task OnPurchaseEffect();
-        Task AfterPurchaseEffect();
+        Task<object> OnPurchaseEffect();
+        Task<object> AfterPurchaseEffect();
     }
 }

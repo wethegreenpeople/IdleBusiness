@@ -14,11 +14,6 @@
 });
 
 function DisableUnavailablePurchases() {
-    function Disable(button, itemId) {
-        $("#purchase-item-" + itemId).addClass("disabled-card");
-        $(button).prop('disabled', true);
-    }
-
     var items = $("[data-purchase-item-id]");
     var currentCash = parseFloat($("#businessCurrentCash").attr("data-number-to-format"));
     items.each(function () {
@@ -36,8 +31,12 @@ function DisableUnavailablePurchases() {
             if (amountOfOwnedItems >= currentMaxItems && maxItemMod <= 0) Disable(this, itemId);
 
             if (itemId == "29") { // Intern training item
-                var iternAmount = parseInt($("#amountOfItemsPurchased-item-1").text());
-                if (iternAmount < 30) Disable(this, itemId);                
+                var iternAmount = parseInt($("#amountOfItemsPurchased-item-1").attr("data-number-to-format"));
+                if (iternAmount < 30) Disable(this, itemId);
+                else {
+                    $("#purchase-item-" + itemId).removeClass("disabled-card");
+                    $(this).prop('disabled', false);
+                }
             }
         }
         else {
@@ -45,4 +44,9 @@ function DisableUnavailablePurchases() {
             $(this).prop('disabled', false);
         }
     });
+}
+
+function Disable(button, itemId) {
+    $("#purchase-item-" + itemId).addClass("disabled-card");
+    $(button).prop('disabled', true);
 }

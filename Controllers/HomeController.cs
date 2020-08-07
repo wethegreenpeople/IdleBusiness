@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using IdleBusiness.Helpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Components.RenderTree;
+using IdleBusiness.Purchasables;
 
 namespace IdleBusiness.Controllers
 {
@@ -100,7 +101,7 @@ namespace IdleBusiness.Controllers
         public async Task<IActionResult> PurchaseItem(int purchasableId, int purchaseCount)
         {
             var user = await GetCurrentEntrepreneur();
-            var purchasable =  (await _context.Purchasables
+            var purchasable = (await _context.Purchasables
                 .Include(s => s.Type)
                 .AsNoTracking()
                 .SingleOrDefaultAsync(s => s.Id == purchasableId && s.UnlocksAtTotalEarnings <= user.Business.LifeTimeEarnings));
@@ -117,13 +118,13 @@ namespace IdleBusiness.Controllers
 
             _context.Entrepreneurs.Update(user);
 
-            await _purchasableHelper.PerformSpecialOnPurchaseActions(purchasable, user.Business);
+            var jsonResponse = await _purchasableHelper.PerformSpecialOnPurchaseActions(purchasable, user.Business);
 
             if (purchasable.IsGlobalPurchase)
                 await _purchasableHelper.ApplyGlobalPurchaseBonus(purchasable, user.Business);
 
             if (!await _appHelper.TrySaveChangesConcurrentAsync(_context)) return StatusCode(500);
-            return Ok();
+            return Ok(jsonResponse);
         }
 
         [HttpPost]

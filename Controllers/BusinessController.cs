@@ -11,6 +11,7 @@ using IdleBusiness.Models;
 using IdleBusiness.Views.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -23,6 +24,8 @@ namespace IdleBusiness.Controllers
         private readonly BusinessHelper _businessHelper;
         private readonly ILogger<BusinessController> _logger;
         private readonly EntrepreneurHelper _entrepreneurHelper;
+        private readonly ApplicationHelper _applicationHelper;
+        private readonly InvestmentHelper _investmentHelper;
 
         public BusinessController(ApplicationDbContext context, ILogger<BusinessController> logger)
         {
@@ -30,6 +33,8 @@ namespace IdleBusiness.Controllers
             _logger = logger;
             _businessHelper = new BusinessHelper(context, _logger);
             _entrepreneurHelper = new EntrepreneurHelper(context, _logger);
+            _applicationHelper = new ApplicationHelper(_logger);
+            _investmentHelper = new InvestmentHelper(_context, _logger);
         }
 
         [Authorize]
@@ -41,17 +46,15 @@ namespace IdleBusiness.Controllers
             vm.Business = business;
             vm.CurrentEntrepreneur = await GetCurrentEntrepreneur();
             vm.CurrentBusinessInvestments = await _businessHelper.GetInvestmentsCompanyHasMade(id);
-            vm.HasCurrentEntrepreneurInvestedInBusiness = business.Investments.Any(s => s.InvestingBusinessId == vm.CurrentEntrepreneur.Business.Id && s.InvestmentType != InvestmentType.Espionage);
+
+            var currentEntrepreneursInvestmentsInBusiness = await _investmentHelper.GetInvestmentsBusinessHasMadeInAnotherBusinessAsync(vm.CurrentEntrepreneur.BusinessId, business.Id);
+            vm.HasCurrentEntrepreneurInvestedInBusiness = currentEntrepreneursInvestmentsInBusiness?.Count > 0;
             if (vm.HasCurrentEntrepreneurInvestedInBusiness)
             {
-                var investments = business.Investments
-                    .Where(s => s.InvestingBusinessId == vm.CurrentEntrepreneur.Business.Id)
-                    .Where(s => s.InvestmentType == InvestmentType.Investment)
-                    .ToList();
-                vm.CurrentEntrepreneurInvestments = investments;
-                foreach (var item in investments)
+                vm.CurrentEntrepreneurInvestments = currentEntrepreneursInvestmentsInBusiness.ToList();
+                foreach (var item in vm.CurrentEntrepreneurInvestments)
                 {
-                    vm.TotalInvestedAmount += item.InvestmentAmount;
+                    vm.TotalInvestedAmount += item.Investment.InvestmentAmount;
                     vm.InvestedProfits += InvestmentHelper.CalculateInvestmentProfit(item);
                 }
             }
@@ -76,28 +79,41 @@ namespace IdleBusiness.Controllers
         public async Task<IActionResult> InvestInCompany(int companyToInvestInId, float investmentAmount)
         {
             var user = await GetCurrentEntrepreneur();
+            if (companyToInvestInId == user.Business.Id) return RedirectToAction("Index", "Business", new { id = companyToInvestInId }); // cannot invest in yourself
             if (user.Business.LifeTimeEarnings < 1000000) return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
             if (investmentAmount <= 0 || investmentAmount > user.Business.CashPerSecond) return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
             var companyToInvestIn = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToInvestInId);
 
-            companyToInvestIn.Investments.Add(
-                new Investment() 
-                { 
-                    BusinessToInvestId = companyToInvestIn.Id, 
-                    InvestmentAmount = investmentAmount,
-                    InvestmentExpiration = DateTime.UtcNow.AddDays(1),
-                    InvestedBusinessCashAtInvestment = companyToInvestIn.Cash,
-                    InvestedBusinessCashPerSecondAtInvestment = companyToInvestIn.CashPerSecond,
-                    InvestmentType = InvestmentType.Investment,
-                    InvestingBusinessId = user.Business.Id,
-                });
+            var investment = new Investment()
+            {
+                InvestmentAmount = investmentAmount,
+                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                InvestedBusinessCashAtInvestment = companyToInvestIn.Cash,
+                InvestedBusinessCashPerSecondAtInvestment = companyToInvestIn.CashPerSecond,
+                InvestmentType = InvestmentType.Investment,
+            };
+            var investorBusinessInvestment = new BusinessInvestment()
+            {
+                Investment = investment,
+                InvestmentDirection = InvestmentDirection.Investor,
+                InvestmentType = InvestmentType.Investment
+            };
+            var investeeBusinessInvestment = new BusinessInvestment()
+            {
+                Investment = investment,
+                InvestmentDirection = InvestmentDirection.Investee,
+                InvestmentType = InvestmentType.Investment
+            };
+
+            user.Business.BusinessInvestments.Add(investorBusinessInvestment);
+            companyToInvestIn.BusinessInvestments.Add(investeeBusinessInvestment);
 
             user.Business.CashPerSecond -= investmentAmount;
             companyToInvestIn.CashPerSecond += investmentAmount;
 
             _context.Business.Update(user.Business);
             _context.Business.Update(companyToInvestIn);
-            await _context.SaveChangesAsync();
+            await _applicationHelper.TrySaveChangesConcurrentAsync(_context);
 
             return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
         }
@@ -123,23 +139,43 @@ namespace IdleBusiness.Controllers
         {
             var user = await GetCurrentEntrepreneur();
             var companyToInvestIn = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToInvestInId);
-            var partnerCompany = await _context.Business.Where(s => s.Id == companyToPartnerWith).SingleOrDefaultAsync();
+            var partnerCompany = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToPartnerWith);
 
             if (investmentAmount <= 0 || investmentAmount > user.Business.CashPerSecond || investmentAmount > partnerCompany.CashPerSecond) 
                 return RedirectToAction("Index", "Business", new { id = companyToInvestInId });
 
             var investment = new Investment()
             {
-                BusinessToInvestId = companyToInvestIn.Id,
                 InvestmentAmount = investmentAmount,
                 InvestmentExpiration = DateTime.UtcNow.AddDays(1),
                 InvestedBusinessCashAtInvestment = companyToInvestIn.Cash,
                 InvestedBusinessCashPerSecondAtInvestment = companyToInvestIn.CashPerSecond,
                 InvestmentType = InvestmentType.Group,
-                InvestingBusinessId = user.Business.Id,
-                PartnerBusinessId = companyToPartnerWith,
             };
-            companyToInvestIn.Investments.Add(investment);
+            var investorBusinessInvestment = new BusinessInvestment()
+            {
+                Business = user.Business,
+                Investment = investment,
+                InvestmentType = InvestmentType.Group,
+                InvestmentDirection = InvestmentDirection.Investor
+            }; 
+            var partnerBusinessInvestment = new BusinessInvestment()
+            {
+                Business = partnerCompany,
+                Investment = investment,
+                InvestmentType = InvestmentType.Group,
+                InvestmentDirection = InvestmentDirection.Partner
+            };
+            var companyToInvestInBusinessInvestment = new BusinessInvestment()
+            {
+                Business = companyToInvestIn,
+                Investment = investment,
+                InvestmentType = InvestmentType.Group,
+                InvestmentDirection = InvestmentDirection.Investee
+            };
+            _context.BusinessInvestments.Add(investorBusinessInvestment);
+            _context.BusinessInvestments.Add(partnerBusinessInvestment);
+            _context.BusinessInvestments.Add(companyToInvestInBusinessInvestment);
             await _context.SaveChangesAsync();
 
             var bsr = await _context.Business.Where(s => s.Id == businessSendingRequest).SingleOrDefaultAsync();
@@ -156,50 +192,35 @@ namespace IdleBusiness.Controllers
         [Authorize]
         public async Task<IActionResult> GroupInvestment(int id)
         {
-            var groupInvestment = await _context.Investments
-                .Include(s => s.BusinessToInvest)
-                .Include(s => s.InvestingBusiness)
-                .Include(s => s.PartnerBusiness)
-                .SingleOrDefaultAsync(s => s.Id == id);
+            var groupInvestment = await _context.BusinessInvestments
+                .Include(s => s.Investment)
+                .Include(s => s.Business)
+                .Where(s => s.Investment.Id == id)
+                .ToListAsync();
 
-            var investingBusiness = groupInvestment.InvestingBusiness;
-            var partnerBusiness = groupInvestment.PartnerBusiness;
-            var businessToInvestIn = groupInvestment.BusinessToInvest;
+            var user = await GetCurrentEntrepreneur();
 
-            if (groupInvestment.PartnerBusinessId != partnerBusiness.Id) return RedirectToAction("Index", "Home");
+            if (groupInvestment.Count != 3) return RedirectToAction("Index", "Home");
 
-            partnerBusiness.CashPerSecond -= groupInvestment.InvestmentAmount;
-            investingBusiness.CashPerSecond -= groupInvestment.InvestmentAmount;
-            businessToInvestIn.CashPerSecond += groupInvestment.InvestmentAmount * 2;
+            var investingBusiness = groupInvestment.Where(s => s.InvestmentDirection == InvestmentDirection.Investor).ToList()[0];
+            var partnerBusiness = groupInvestment.Where(s => s.InvestmentDirection == InvestmentDirection.Partner).ToList()[0];
+            var businessToInvestIn = groupInvestment.Where(s => s.InvestmentDirection == InvestmentDirection.Investee).ToList()[0];
 
-            _context.Business.Update(partnerBusiness);
-            _context.Business.Update(investingBusiness);
-            _context.Business.Update(businessToInvestIn);
-            await _context.SaveChangesAsync();
+            if (partnerBusiness.Business.Id == investingBusiness.Business.Id) return RedirectToAction("Index", "Home");
+            if (partnerBusiness.Business.Id != user.Business.Id) return RedirectToAction("Index", "Home");
 
-            var investment = new Investment()
-            {
-                BusinessToInvestId = businessToInvestIn.Id,
-                InvestmentAmount = groupInvestment.InvestmentAmount,
-                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
-                InvestedBusinessCashAtInvestment = groupInvestment.BusinessToInvest.Cash,
-                InvestedBusinessCashPerSecondAtInvestment = groupInvestment.BusinessToInvest.CashPerSecond,
-                InvestmentType = InvestmentType.Investment,
-                InvestingBusinessId = partnerBusiness.Id,
-            };
-            _context.Investments.Add(investment);
+            partnerBusiness.Business.CashPerSecond -= partnerBusiness.Investment.InvestmentAmount;
+            partnerBusiness.Investment.InvestmentType = InvestmentType.Investment;
 
-            _context.Investments.Add(new Investment()
-            {
-                BusinessToInvestId = businessToInvestIn.Id,
-                InvestmentAmount = groupInvestment.InvestmentAmount,
-                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
-                InvestedBusinessCashAtInvestment = groupInvestment.BusinessToInvest.Cash,
-                InvestedBusinessCashPerSecondAtInvestment = groupInvestment.BusinessToInvest.CashPerSecond,
-                InvestmentType = InvestmentType.Investment,
-                InvestingBusinessId = investingBusiness.Id,
-            });
+            investingBusiness.Business.CashPerSecond -= investingBusiness.Investment.InvestmentAmount;
+            investingBusiness.Investment.InvestmentType = InvestmentType.Investment;
 
+            businessToInvestIn.Business.CashPerSecond += businessToInvestIn.Investment.InvestmentAmount * 2;
+            businessToInvestIn.Investment.InvestmentType = InvestmentType.Investment;
+
+            _context.BusinessInvestments.Update(partnerBusiness);
+            _context.BusinessInvestments.Update(investingBusiness);
+            _context.BusinessInvestments.Update(businessToInvestIn);
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
@@ -209,9 +230,13 @@ namespace IdleBusiness.Controllers
         [Authorize]
         public async Task<IActionResult> CommitEspionage(int companyToEspionageId)
         {
+            double CalculateEspionageCost(Business business)
+            {
+                return business.Cash * 0.01;
+            }
             var user = await GetCurrentEntrepreneur();
             var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToEspionageId);
-            var costOfEspionage = 10000;
+            var costOfEspionage = CalculateEspionageCost(user.Business);
             if (companyToEspionage.AmountEmployed < 70) return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
             if (user.Business.Cash < costOfEspionage) return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
 
@@ -220,25 +245,38 @@ namespace IdleBusiness.Controllers
             await _context.SaveChangesAsync();
 
             var rand = new Random();
-            if (((user.Business.EspionageChance * 100) - (companyToEspionage.EspionageDefense * 100)) < rand.Next(0, 100)) return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
+            if (((user.Business.EspionageChance * 100) - (companyToEspionage.EspionageDefense * 100)) < rand.Next(0, 100)) return Ok(JsonConvert.SerializeObject(new { SuccessfulEspionage = false, EspionageAmount = 0, UpdatedEspionageCost = CalculateEspionageCost(user.Business) }));
 
-            companyToEspionage.Investments.Add(
-                new Investment() 
-                { 
-                    BusinessToInvestId = companyToEspionage.Id,
-                    InvestingBusinessId = user.Business.Id,
-                    InvestmentAmount = (companyToEspionage.CashPerSecond / 2), 
-                    InvestmentExpiration = DateTime.UtcNow.AddDays(1),
-                    InvestmentType = InvestmentType.Espionage,
-                });
-            companyToEspionage.CashPerSecond -= (companyToEspionage.CashPerSecond / 2);
+            var investment = new Investment()
+            {
+                InvestmentAmount = (companyToEspionage.CashPerSecond / 2),
+                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                InvestmentType = InvestmentType.Espionage,
+            };
+            var investorBusinessInvestment = new BusinessInvestment()
+            {
+                InvestmentType = InvestmentType.Espionage,
+                Investment = investment,
+                InvestmentDirection = InvestmentDirection.Investor,
+            };
+            var investeeBusinessInvestment = new BusinessInvestment()
+            {
+                InvestmentType = InvestmentType.Espionage,
+                Investment = investment,
+                InvestmentDirection = InvestmentDirection.Investee,
+            };
+
+            var espionageAmount = companyToEspionage.CashPerSecond / 2;
+            companyToEspionage.CashPerSecond = espionageAmount;
             companyToEspionage.EspionageDefense += .05F;
 
+            user.Business.BusinessInvestments.Add(investorBusinessInvestment);
+            companyToEspionage.BusinessInvestments.Add(investeeBusinessInvestment);
             _context.Business.Update(companyToEspionage);
             _context.Business.Update(user.Business);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
+            return Ok(JsonConvert.SerializeObject(new { SuccessfulEspionage = true, EspionageAmount = espionageAmount, UpdatedEspionageCost = CalculateEspionageCost(user.Business)}));
         }
 
         [NonAction]
@@ -247,7 +285,7 @@ namespace IdleBusiness.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var ent = await _context.Entrepreneurs
                 .Include(s => s.Business)
-                    .ThenInclude(s => s.Investments)
+                    .ThenInclude(s => s.BusinessInvestments)
                 .Include(s => s.Business.BusinessPurchases)
                 .FirstOrDefaultAsync(s => s.Id == userId);
 

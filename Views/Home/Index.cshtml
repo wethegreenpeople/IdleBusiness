@@ -5,6 +5,7 @@
 }
 
 <span hidden id="unreadMessageAmount" data-message-amount="@Model.UnreadMessageAmount"></span>
+<partial name="../Shared/Partials/_SimpleModal" />
 
 <div class="row">
     @if (User.Identity.IsAuthenticated)
