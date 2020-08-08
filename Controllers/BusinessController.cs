@@ -59,6 +59,7 @@ namespace IdleBusiness.Controllers
                 }
             }
             vm.CurrentBusinessEspionages = await _businessHelper.GetEspionagesCompanyHasComitted(id);
+            vm.EspionagePercentage = CalculateEspionagePercentage(business, vm.CurrentEntrepreneur.Business);
             if (vm.Business == null) return RedirectToAction("Index", "Home");
 
             return View(vm);
@@ -247,9 +248,12 @@ namespace IdleBusiness.Controllers
             var rand = new Random();
             if (((user.Business.EspionageChance * 100) - (companyToEspionage.EspionageDefense * 100)) < rand.Next(0, 100)) return Ok(JsonConvert.SerializeObject(new { SuccessfulEspionage = false, EspionageAmount = 0, UpdatedEspionageCost = CalculateEspionageCost(user.Business) }));
 
+            var espionageAmountPercentage = CalculateEspionagePercentage(companyToEspionage, user.Business);
+            var espionageAmount = companyToEspionage.CashPerSecond * espionageAmountPercentage;
+
             var investment = new Investment()
             {
-                InvestmentAmount = (companyToEspionage.CashPerSecond / 2),
+                InvestmentAmount = (espionageAmount),
                 InvestmentExpiration = DateTime.UtcNow.AddDays(1),
                 InvestmentType = InvestmentType.Espionage,
             };
@@ -266,7 +270,6 @@ namespace IdleBusiness.Controllers
                 InvestmentDirection = InvestmentDirection.Investee,
             };
 
-            var espionageAmount = companyToEspionage.CashPerSecond / 2;
             companyToEspionage.CashPerSecond = espionageAmount;
             companyToEspionage.EspionageDefense += .05F;
 
@@ -277,6 +280,38 @@ namespace IdleBusiness.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(JsonConvert.SerializeObject(new { SuccessfulEspionage = true, EspionageAmount = espionageAmount, UpdatedEspionageCost = CalculateEspionageCost(user.Business)}));
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AttemptTheft(int companyToThieveId)
+        {
+            double CalculateEspionageCost(Business business)
+            {
+                return business.Cash * 0.01;
+            }
+            var user = await GetCurrentEntrepreneur();
+            var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToThieveId);
+            if (companyToEspionage == null) return RedirectToAction("Index", "Business", new { id = companyToThieveId });
+            var costOfEspionage = CalculateEspionageCost(user.Business);
+            if (!PurchasableHelper.HasBusinessPurchasedItem(user.Business.BusinessPurchases, 35)) return RedirectToAction("Index", "Business", new { id = companyToThieveId });
+
+            user.Business.Cash -= costOfEspionage;
+            _context.Business.Update(user.Business);
+            await _context.SaveChangesAsync();
+
+            var rand = new Random();
+            if (((user.Business.EspionageChance * 100) - ((companyToEspionage.EspionageDefense * 100) *.85)) < rand.Next(0, 100)) return Ok(JsonConvert.SerializeObject(new { SuccessTheft = false, TheftAmount = 0, UpdatedEspionageCost = CalculateEspionageCost(user.Business) }));
+
+            double theftPercentage = rand.Next(1, 5);
+            var theftAmount = companyToEspionage.Cash * (theftPercentage / 100);
+
+            companyToEspionage.Cash -= theftAmount;
+            companyToEspionage.EspionageDefense += .05;
+            _context.Business.Update(companyToEspionage);
+            await _context.SaveChangesAsync();
+
+            return Ok(JsonConvert.SerializeObject(new { SuccessTheft = true, TheftAmount = theftAmount, UpdatedEspionageCost = CalculateEspionageCost(user.Business) }));
         }
 
         [NonAction]
@@ -291,6 +326,15 @@ namespace IdleBusiness.Controllers
 
             if (ent == null) return null;
             return ent;
+        }
+
+        [NonAction]
+        private double CalculateEspionagePercentage(Business businessToEspionage, Business espionagingBusiness)
+        {
+            var espionageAmount = espionagingBusiness.EspionageChance - businessToEspionage.EspionageDefense;
+            if (espionageAmount <= 0) espionageAmount = 0;
+            else if (espionageAmount >= .5) espionageAmount = .5;
+            return espionageAmount;
         }
     }
 }

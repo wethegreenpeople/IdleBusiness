@@ -182,12 +182,12 @@
                                         @if (Model.Business.MaxEmployeeAmount >= 70)
                                         {
                                             <p class="card-subtitle mb-2">
-                                                Cost: <span id="espionageCost" class="formatted-number" data-number-to-format=""></span> (<span class="formatted-number" data-number-to-format="@Model.CurrentEntrepreneur.Business.Cash"></span>)
+                                                Cost: <span name="espionageCost" class="formatted-number" data-number-to-format=""></span> (<span class="formatted-number" data-number-to-format="@Model.CurrentEntrepreneur.Business.Cash"></span>)
                                             </p>
                                             <p class="card-subtitle mb-2">
                                                 Chance of success: <span class="font-weight-bold formatted-number" data-number-to-format="@(Model.CurrentEntrepreneur.Business.EspionageChance - Model.Business.EspionageDefense)" data-number-format-style="0%"></span>
                                             </p>
-                                            <p class="card-subtitle mb-2 text-muted">If espionage is successful, @Model.Business.Name will lose half of it's current CPS for one day. @Model.Business.Name will also gain 5% espionage defense.</p>
+                                            <p class="card-subtitle mb-2 text-muted">If espionage is successful, @Model.Business.Name will lose <span class="font-italic formatted-number" data-number-to-format="@(Model.EspionagePercentage)" data-number-format-style="0%"></span> of it's current CPS for one day. @Model.Business.Name will also gain 5% espionage defense.</p>
                                             <button id="attemptEspionage" type="submit" class="btn btn-primary">Attempt Espionage</button>
                                         }
                                         else
@@ -200,6 +200,13 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 35))
+                            {
+                                <div class="col-md-6">
+                                    <partial name="Partials/FunnelMoneyFromBusiness" model="@Model" />
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -250,52 +257,18 @@
         });
     </script>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#attemptEspionage').click(debounce(function () {
-                $.ajax({
-                    url: "/business/CommitEspionage",
-                    type: "POST",
-                    data: {
-                        "companyToEspionageId": $("#businessId").val(),
-                    },
-                    headers: {
-                    },
-                    success: function (data) {
-                        $("#espionageAlert").removeClass("alert-primary");
-                        $("#espionageAlert").removeClass("alert-danger");
-                        var result = jQuery.parseJSON(data);
-                        console.log(result);
-                        if (result.SuccessfulEspionage) {
-                            $("#espionageAlert").text("Espionage successful. Removed $" + result.EspionageAmount + " from business");
-                            $("#espionageAlert").addClass("alert-primary");
-                            $("#espionageAlert").fadeIn(500);
-                            $("#espionageAlert").delay(5000).fadeOut(500);
-                            $("#espionageCost").attr("data-number-to-format", result.UpdatedEspionageCost).trigger('numberChange');
-                        }
-                        if (!result.SuccessfulEspionage) {
-                            $("#espionageAlert").text("Espionage unsuccessful");
-                            $("#espionageAlert").addClass("alert-danger");
-                            $("#espionageAlert").fadeIn(500);
-                            $("#espionageAlert").delay(2000).fadeOut(500);
-                            $("#espionageCost").attr("data-number-to-format", result.UpdatedEspionageCost).trigger('numberChange');
-                        }
-                    },
-                    error: function (data) {
-                        console.log(data);
-                        window.location.href = "/business/index/" + $("#businessId").val();
-                    },
-                });
-            }, 500))
-        });
-    </script>
+    
 
     <script type="text/javascript">
         $(document).ready(function () {
             var currentEntCash = parseInt($("#currentEntreprenuerCash").val());
-            $("#espionageCost").attr("data-number-to-format", currentEntCash * 0.01).trigger('numberChange');
+            $("[name='espionageCost']").each(function () {
+                $(this).attr("data-number-to-format", currentEntCash * 0.01).trigger('numberChange');
+            });
         });
     </script>
 
+    <script type="text/javascript" src="~/js/commitEspionage.js"></script>
+    <script type="text/javascript" src="~/js/stealMoney.js"></script>
     <script type="text/javascript" src="~/js/debounce.js"></script>
 }

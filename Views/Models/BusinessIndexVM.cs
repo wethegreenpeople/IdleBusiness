@@ -14,6 +14,7 @@ namespace IdleBusiness.Views.Models
         public bool HasCurrentEntrepreneurInvestedInBusiness { get; set; }
         public double TotalInvestedAmount { get; set; }
         public double InvestedProfits { get; set; }
+        public double EspionagePercentage { get; set; }
         public List<BusinessInvestment> CurrentEntrepreneurInvestments { get; set; }
         public List<(BusinessInvestment Investee, BusinessInvestment Investor)> CurrentBusinessInvestments { get; set; }
         public List<(BusinessInvestment Investee, BusinessInvestment Investor)> CurrentBusinessEspionages { get; set; }
