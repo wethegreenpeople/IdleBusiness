@@ -1,10 +1,10 @@
 ﻿$(document).ready(function () {
-    $('#attemptEspionage').click(debounce(function () {
+    $('#attemptArson').click(debounce(function () {
         $.ajax({
-            url: "/business/CommitEspionage",
+            url: "/business/AttemptArson",
             type: "POST",
             data: {
-                "companyToEspionageId": $("#businessId").val(),
+                "companyToArsonId": $("#businessId").val(),
             },
             headers: {
             },
@@ -12,9 +12,8 @@
                 $("#espionageAlert").removeClass("alert-primary");
                 $("#espionageAlert").removeClass("alert-danger");
                 var result = jQuery.parseJSON(data);
-                console.log(result);
-                if (result.SuccessfulEspionage) {
-                    $("#espionageAlert").text("Espionage successful. Removed $" + result.EspionageAmount + " from business");
+                if (result.SuccessTheft) {
+                    $("#espionageAlert").text("Arson successful. Removed " + numeral(result.ArsonAmount).format('0') + " max employees from business");
                     $("[name='espionageChanceOfSuccess']").each(function () {
                         $(this).attr("data-number-to-format", parseFloat($(this).attr("data-number-to-format")) - 0.05).trigger('numberChange');
                     });
@@ -22,8 +21,8 @@
                     $("#espionageAlert").fadeIn(500);
                     $("#espionageAlert").delay(5000).fadeOut(500);
                 }
-                if (!result.SuccessfulEspionage) {
-                    $("#espionageAlert").text("Espionage unsuccessful");
+                if (!result.SuccessTheft) {
+                    $("#espionageAlert").text("Arson unsuccessful");
                     $("#espionageAlert").addClass("alert-danger");
                     $("#espionageAlert").fadeIn(500);
                     $("#espionageAlert").delay(2000).fadeOut(500);

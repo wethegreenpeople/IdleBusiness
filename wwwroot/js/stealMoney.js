@@ -13,7 +13,10 @@
                 $("#espionageAlert").removeClass("alert-danger");
                 var result = jQuery.parseJSON(data);
                 if (result.SuccessTheft) {
-                    $("#espionageAlert").text("Theft successful. Stole $" + result.TheftAmount + " from business");
+                    $("#espionageAlert").text("Theft successful. Stole $" + numeral(result.TheftAmount).format('0a') + " from business");
+                    $("[name='espionageChanceOfSuccess']").each(function () {
+                        $(this).attr("data-number-to-format", parseFloat($(this).attr("data-number-to-format")) - 0.05).trigger('numberChange');
+                    });
                     $("#espionageAlert").addClass("alert-primary");
                     $("#espionageAlert").fadeIn(500);
                     $("#espionageAlert").delay(5000).fadeOut(500);

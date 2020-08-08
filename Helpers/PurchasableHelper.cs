@@ -115,6 +115,7 @@ namespace IdleBusiness.Helpers
 
         public static bool EnsurePurchaseIsValid(Purchasable purchase, Business business, int purchaseCount)
         {
+            if (purchase.IsSinglePurchase && business.BusinessPurchases.Any(s => s.PurchaseId == purchase.Id)) return false;
             switch (purchase.Type.Id)
             {
                 case (int)PurchasableTypeEnum.Employee:

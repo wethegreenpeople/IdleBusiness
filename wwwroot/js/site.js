@@ -23,6 +23,16 @@ function DisableUnavailablePurchases() {
         var amountOwned = parseInt($(this).attr("data-purchase-item-amountOwned"));
         var itemType = parseInt($(this).attr("data-purchase-item-type"));
         if (currentCash < itemCost) { Disable(this, itemId); }
+        else if (itemType == 1) {
+            var maxEmployeeAmount = parseInt($("#businessMaxEmployees").attr("data-number-to-format"));
+            var currentEmployed = parseInt($("#businessTotalEmployed").attr("data-number-to-format"));
+
+            if (currentEmployed >= maxEmployeeAmount) { Disable(this, itemId); }
+            else {
+                $("#purchase-item-" + itemId).removeClass("disabled-card");
+                $(this).prop('disabled', false);
+            }
+        }
         else if (isSinglePurchase && amountOwned >= 1) { Disable(this, itemId); }
         else if (itemType == 2) {
             var currentMaxItems = parseInt($("#businessMaxAmountItemsAllowed").text());

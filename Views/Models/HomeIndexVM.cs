@@ -22,6 +22,15 @@ namespace IdleBusiness.Views.Models
         public string CurrentCash => Business?.Cash.ToString();
         public string TotalEmployed => Business?.AmountEmployed.ToString();
         public string UnreadMessageAmount => Business?.ReceivedMessages.Where(s => !s.ReadByBusiness).Count().ToString();
+        
+        public string TotalEmployeePurchasableCount => Purchasables.Where(s => s.Type.Id == 1).Count().ToString();
+        public string TotalEmployeesUnlocked => Purchasables.Where(s => s.Type.Id == 1 && s.UnlocksAtTotalEarnings <= Business.LifeTimeEarnings).Count().ToString();
+        public string TotalItemPurchasableCount => Purchasables.Where(s => s.Type.Id == 2).Count().ToString();
+        public string TotalItemsUnlocked => Purchasables.Where(s => s.Type.Id == 2 && s.UnlocksAtTotalEarnings <= Business.LifeTimeEarnings).Count().ToString();
+
+        public string TotalRealEstatePurchasableCount => Purchasables.Where(s => s.Type.Id == 3).Count().ToString();
+        public string TotalRealEstateUnlocked => Purchasables.Where(s => s.Type.Id == 3 && s.UnlocksAtTotalEarnings <= Business.LifeTimeEarnings).Count().ToString();
+
 
         public bool HasSeekingAlphaItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 25).amount > 0;
         public bool HasSeekingAlphaProItem => PurchasedItems.SingleOrDefault(s => s.purchasable.Id == 26).amount > 0;

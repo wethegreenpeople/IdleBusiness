@@ -91,9 +91,9 @@
                         <div class="card-body bg-light collapse show" id="purchaseCardCollapse" style="overflow: auto; max-height:100vh;">
                             <nav>
                                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                    <a class="nav-item nav-link active" id="nav-employees-tab" data-toggle="tab" href="#nav-employees" role="tab">Employees</a>
-                                    <a class="nav-item nav-link" id="nav-items-tab" data-toggle="tab" href="#nav-items" role="tab">Items</a>
-                                    <a class="nav-item nav-link" id="nav-realestate-tab" data-toggle="tab" href="#nav-realestate" role="tab">Real Estate</a>
+                                    <a class="nav-item nav-link active" id="nav-employees-tab" data-toggle="tab" href="#nav-employees" role="tab" data-purchaseType-Id="1">Employees <span id="employeeNavCount" class="small">(@Model.TotalEmployeesUnlocked/@Model.TotalEmployeePurchasableCount)</span></a>
+                                    <a class="nav-item nav-link" id="nav-items-tab" data-toggle="tab" href="#nav-items" role="tab" data-purchaseType-Id="2">Items <span id="itemNavCount" class="small">(@Model.TotalItemsUnlocked/@Model.TotalItemPurchasableCount)</span></a>
+                                    <a class="nav-item nav-link" id="nav-realestate-tab" data-toggle="tab" href="#nav-realestate" role="tab">Real Estate <span class="small">(@Model.TotalRealEstateUnlocked/@Model.TotalRealEstatePurchasableCount)</span></a>
                                 </div>
                             </nav>
                             <div class="tab-content" id="nav-tabContent">
@@ -213,6 +213,24 @@
             }, 10000);
         });
     </script>
+
+    @*<script type="text/javascript">
+        $(document).ready(function () {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                e.target // newly activated tab
+                e.relatedTarget // previous active tab
+
+                $("#employeeNavCount").text("");
+                $("#itemNavCount").text("");
+                if ($(e.target).attr("data-purchaseType-Id") == 1) {
+                    $("#employeeNavCount").text($("#totalEmployeesUnlocked").val() + "/" + $("#totalEmployeesAvailable").val());
+                }
+                if ($(e.target).attr("data-purchaseType-Id") == 2) {
+                    $("#itemNavCount").text($("#totalItemsUnlocked").val() + "/" + $("#totalItemsAvailable").val());
+                }
+            });
+        });
+    </script>*@
 
     <script type="text/javascript" src="~/js/debounce.js"></script>
 }

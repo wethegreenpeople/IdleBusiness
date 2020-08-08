@@ -86,7 +86,7 @@ function UpdateBusinessMaxItems(button) {
 
 function UpdateTotalEmployed(button) {
     if (button.getAttribute("data-purchase-item-type") == 1) {
-        $("#businessTotalEmployed").text(totalEmployed += 1);
+        $("#businessTotalEmployed").attr("data-number-to-format", totalEmployed += 1).trigger('numberChange');
     }
 }
 

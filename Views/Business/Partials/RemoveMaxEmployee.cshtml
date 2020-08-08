@@ -1,0 +1,15 @@
+﻿@model IdleBusiness.Views.Models.BusinessIndexVM
+
+<div class="card mt-2 ml-2">
+    <div class="card-body">
+        <h3 class="card-title">Decrease max employee amount from @Model.Business.Name</h3>
+        <p class="card-subtitle mb-2">
+            Cost: <span name="espionageCost" class="formatted-number" data-number-to-format=""></span> (<span class="formatted-number" data-number-to-format="@Model.CurrentEntrepreneur.Business.Cash"></span>)
+        </p>
+        <p class="card-subtitle mb-2">
+            Chance of success: <span name="espionageChanceOfSuccess" id="decreaseMaxEmployeeChanceOfSuccess" class="font-weight-bold formatted-number" data-number-to-format="@(Model.CurrentEntrepreneur.Business.EspionageChance - (Model.Business.EspionageDefense * .95))" data-number-format-style="0%"></span>
+        </p>
+        <p class="card-subtitle mb-2 text-muted">If successful, you will remove between 10-40 of @Model.Business.Name's max employees. @Model.Business.Name will also gain 5% espionage defense</p>
+        <button id="attemptArson" type="submit" class="btn btn-primary">Attempt arson</button>
+    </div>
+</div>

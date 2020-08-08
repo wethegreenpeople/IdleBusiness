@@ -185,7 +185,7 @@
                                                 Cost: <span name="espionageCost" class="formatted-number" data-number-to-format=""></span> (<span class="formatted-number" data-number-to-format="@Model.CurrentEntrepreneur.Business.Cash"></span>)
                                             </p>
                                             <p class="card-subtitle mb-2">
-                                                Chance of success: <span class="font-weight-bold formatted-number" data-number-to-format="@(Model.CurrentEntrepreneur.Business.EspionageChance - Model.Business.EspionageDefense)" data-number-format-style="0%"></span>
+                                                Chance of success: <span name="espionageChanceOfSuccess" class="font-weight-bold formatted-number" data-number-to-format="@(Model.CurrentEntrepreneur.Business.EspionageChance - Model.Business.EspionageDefense)" data-number-format-style="0%"></span>
                                             </p>
                                             <p class="card-subtitle mb-2 text-muted">If espionage is successful, @Model.Business.Name will lose <span class="font-italic formatted-number" data-number-to-format="@(Model.EspionagePercentage)" data-number-format-style="0%"></span> of it's current CPS for one day. @Model.Business.Name will also gain 5% espionage defense.</p>
                                             <button id="attemptEspionage" type="submit" class="btn btn-primary">Attempt Espionage</button>
@@ -205,6 +205,13 @@
                             {
                                 <div class="col-md-6">
                                     <partial name="Partials/FunnelMoneyFromBusiness" model="@Model" />
+                                </div>
+                            }
+
+                            @if (IdleBusiness.Helpers.PurchasableHelper.HasBusinessPurchasedItem(Model.CurrentEntrepreneur.Business.BusinessPurchases, 36))
+                            {
+                                <div class="col-md-6">
+                                    <partial name="Partials/RemoveMaxEmployee" model="@Model" />
                                 </div>
                             }
                         </div>
@@ -263,12 +270,15 @@
         $(document).ready(function () {
             var currentEntCash = parseInt($("#currentEntreprenuerCash").val());
             $("[name='espionageCost']").each(function () {
-                $(this).attr("data-number-to-format", currentEntCash * 0.01).trigger('numberChange');
+                var cost = 10000;
+                if ((currentEntCash * 0.01) > 10000) cost = (currentEntCash * 0.01);
+                $(this).attr("data-number-to-format", cost).trigger('numberChange');
             });
         });
     </script>
 
     <script type="text/javascript" src="~/js/commitEspionage.js"></script>
     <script type="text/javascript" src="~/js/stealMoney.js"></script>
+    <script type="text/javascript" src="~/js/removeMaxEmployee.js"></script>
     <script type="text/javascript" src="~/js/debounce.js"></script>
 }

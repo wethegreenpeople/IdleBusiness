@@ -62,7 +62,8 @@ namespace IdleBusiness.Controllers
                         .Include(s => s.Type)
                         .Include(s => s.PurchasableUpgrade)
                             .ThenInclude(s => s.PurchasableUpgrade) // Hard locks us into X number of upgrades, but I'm not sure of a better wya to accomplish this right now
-                        .OrderBy(s => s.UnlocksAtTotalEarnings)
+                        .OrderBy(s => s.IsSinglePurchase)
+                        .ThenBy(s => s.UnlocksAtTotalEarnings)
                         .Select(s => PurchasableHelper.SwapPurchaseForUpgradeIfAlreadyBought(s, user.Business))
                         .Select(s => PurchasableHelper.AdjustPurchasableCostWithSectorBonus(s, user.Business))
                         .ToList();
