@@ -12,7 +12,7 @@
     <tbody>
         @for (int i = 0; i < Model.MostSuccessfulBusinesses.Count; ++i)
         {
-            <tr>
+            <tr style="cursor:pointer;">
                 <td>@Model.MostSuccessfulBusinesses[i].Id</td>
                 @if (i == 0) { <td><span class="material-icons" style="color: #f9d723">emoji_events</span> @Model.MostSuccessfulBusinesses[i].Name</td> }
                 else if (i == 1) { <td><span class="material-icons" style="color: silver">emoji_events</span> @Model.MostSuccessfulBusinesses[i].Name</td> }
