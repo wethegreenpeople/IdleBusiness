@@ -11,5 +11,6 @@ namespace IdleBusiness.Purchasables
         Purchasable Purchasable { get; set; }
         Task<object> OnPurchaseEffect();
         Task<object> AfterPurchaseEffect();
+        PurchasableJsonReturn PurchaseResponse { get; }
     }
 }

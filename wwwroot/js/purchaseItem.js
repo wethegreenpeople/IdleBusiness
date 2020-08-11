@@ -143,25 +143,41 @@ function ServerPurchaseItem() {
                 "purchasableId": purchaseId,
                 "purchaseCount": purchaseCount,
             },
+            tryCount: 0,
             headers: {
             },
             success: function (data) {
                 var result = jQuery.parseJSON(data);
-                if (result.AfterPurchase == 1) window.location.href = "/";
-                if (result.Message != "") {
-                    $("#simpleModalMessage").text(result.Message);
-                    $('#simpleModal').modal('show')
+                if (result.PurchaseResponse != null) {
+                    if (result.PurchaseResponse.AfterPurchase == 1) window.location.href = "/";
+                    if (result.PurchaseResponse.Message != "") {
+                        $("#simpleModalMessage").text(result.PurchaseResponse.Message);
+                        $('#simpleModal').modal('show')
+                    }
                 }
-                console.log(result);
             },
             error: function (data) {
-                console.log(data);
-                window.location.href = "/";
+                this.tryCount++;
+                if (this.tryCount <= 3) {
+                    $.ajax(this);
+                    return;
+                }
+                return;
             },
+            complete: function (data) {
+                var result = jQuery.parseJSON(data.responseText);
+
+                $("#businessCurrentCash").attr('data-number-to-format', result.Business.Cash).trigger('numberChange');
+                $("#businessCashPerSecond").attr('data-number-to-format', result.Business.CashPerSecond).trigger('numberChange');
+                $("#businessTotalEmployed").attr('data-number-to-format', result.Business.AmountEmployed).trigger('numberChange');
+                $("#businessMaxEmployees").attr('data-number-to-format', result.Business.MaxEmployeeAmount).trigger('numberChange');
+
+                $("#amountOfItemsPurchased-item-" + result.BusinessPurchase.PurchaseId).attr('data-number-to-format', result.BusinessPurchase.AmountOfPurchases).trigger('numberChange');
+            }
         });
 
         ResetValues();
-    }, 1000))
+    }, 550))
 }
 
 $(document).ready(function () {

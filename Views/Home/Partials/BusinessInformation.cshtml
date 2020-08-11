@@ -1,4 +1,6 @@
-﻿<div class="row">
+﻿@model IdleBusiness.Views.Models.HomeIndexVM;
+
+<div class="row">
     <div class="col pr-1">
         <ul class="list-group">
             <li class="list-group-item">
@@ -49,6 +51,8 @@
         </ul>
 
         <ul class="list-group mt-2">
+            @if (Model.Business.EspionageChance != 0 || Model.Business.EspionageDefense != 0)
+            {
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-2 pl-0">
@@ -64,6 +68,7 @@
                     </div>
                 </div>
             </li>
+
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-2 pl-0">
@@ -79,6 +84,7 @@
                     </div>
                 </div>
             </li>
+            }
         </ul>
 
         <ul class="list-group mt-2">
@@ -112,7 +118,7 @@
                             <em>Employees</em>
                         </div>
                         <div class="row">
-                            <span id="businessTotalEmployed" class="formatted-number" data-number-to-format="@(Model.TotalEmployed)" data-number-format-style="0"></span>/<span id="businessMaxEmployees" class="formatted-number font-weight-bold" data-number-to-format="@(Model.Business.MaxEmployeeAmount)" data-number-format-style="0"></span>                        
+                            <span id="businessTotalEmployed" class="formatted-number" data-number-to-format="@(Model.TotalEmployed)" data-number-format-style="0"></span>/<span id="businessMaxEmployees" class="formatted-number font-weight-bold" data-number-to-format="@(Model.Business.MaxEmployeeAmount)" data-number-format-style="0"></span>
                         </div>
                     </div>
                 </div>
@@ -142,21 +148,21 @@
         <ul class="list-group mt-2">
             @if (Model.Business.Sector != null)
             {
-                <li class="list-group-item">
-                    <div class="row">
-                        <div class="col-2 pl-0">
-                            <span class="material-icons">public</span>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-2 pl-0">
+                        <span class="material-icons">public</span>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <em>Sector</em>
                         </div>
-                        <div class="col">
-                            <div class="row">
-                                <em>Sector</em>
-                            </div>
-                            <div class="row">
-                                @Model.Business.Sector.Description
-                            </div>
+                        <div class="row">
+                            @Model.Business.Sector.Description
                         </div>
                     </div>
-                </li>
+                </div>
+            </li>
             }
         </ul>
     </div>

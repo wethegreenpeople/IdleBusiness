@@ -17,23 +17,22 @@ namespace IdleBusiness.Helpers
             _logger = logger;
         }
 
-        public async Task<bool> TrySaveChangesConcurrentAsync(ApplicationDbContext context)
+        public async Task TrySaveChangesConcurrentAsync(ApplicationDbContext context)
         {
             try
             {
                 await context.SaveChangesAsync();
-                return true;
             }
             catch (DbUpdateConcurrencyException ex)
             {
                 _logger.LogError(ex, "Concurrency issue");
+                throw new DbUpdateConcurrencyException();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving changes");
+                throw;
             }
-
-            return false;
         }
     }
 }

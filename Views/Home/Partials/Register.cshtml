@@ -1,19 +1,45 @@
 ﻿<div class="row w-100 justify-content-center">
     <div class="col-md-4 ml-2">
-        <div class="class="card ml-2 mr-2 mt-2 w-100"">
+        <div class="card ml-2 mr-2 mt-2 w-100"">
             <h3 class="card-header bg-card-header">
                 Register To Play
             </h3>
             <div class="card-body bg-light">
                 <p>
-                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary">Create an account</a>
-                </p> 
+                    <a class="btn btn-outline-primary" href="/Identity/Account/Register">Create an account</a>
+                </p>
                 <p>
                     <a asp-action="CreateGuestAccount" asp-controller="Home" class="btn btn-outline-primary">Continue As a Guest</a>
                 </p>
                 <p>
                     To start playing, you must first create an account!
                 </p>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+<div class="row w-100 justify-content-center">
+    <div class="col-md-4 ml-2">
+        <div class="card ml-2 mr-2 mt-2 w-100">
+            <div class="card-body bg-light">
+                <div class="row">
+                    <div class="col-6" style="border-right: solid black 1px">
+                        <div class="mb-3">
+                            <span class="material-icons" style="font-size:xx-large">trending_up</span> Hire employees
+                        </div>
+                        <div class="mb-3">
+                            <span class="material-icons" style="font-size:xx-large">attach_money</span> Make money
+                        </div>
+                        <div class="mb-3">
+                            <span class="material-icons" style="font-size:xx-large">public</span> Destroy your enemies
+                        </div>
+                    </div>
+                    <div class="col">
+                        <p class="text-muted">A fully multiplayer idle experience. Join today and compete with your friends to create the most successful business.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

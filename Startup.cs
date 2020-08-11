@@ -21,6 +21,7 @@ using Hangfire.Dashboard.BasicAuthorization;
 using Hangfire.States;
 using Hangfire.Common;
 using IdleBusiness.Helpers;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace IdleBusiness
 {
@@ -64,6 +65,7 @@ namespace IdleBusiness
             services.AddHangfireServer();
 
             services.AddTransient<PurchasableHelper>(s => new PurchasableHelper(ApplicationDbContextFactory.CreateDbContext(Configuration)));
+            services.AddTransient<IEmailSender, MailHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

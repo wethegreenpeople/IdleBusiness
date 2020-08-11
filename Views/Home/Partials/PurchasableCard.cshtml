@@ -35,7 +35,7 @@
         <div class="row">
             <div class="col">
                 <div class="collapse" id="collapse-@Model.Purchase.Id">
-                    @if (Model.Purchase.EspionageModifier > 0)
+                    @if (Model.Purchase.EspionageModifier != 0)
                     {
                         <p>
                             <span class="m-0" data-toggle="tooltip" data-placement="bottom" title="Espionage Chance">
@@ -46,7 +46,7 @@
                             </span>
                         </p>
                     }
-                    @if (Model.Purchase.EspionageDefenseModifier > 0)
+                    @if (Model.Purchase.EspionageDefenseModifier != 0)
                     {
                         <p>
                             <span class="m-0" data-toggle="tooltip" data-placement="bottom" title="Espionage Defense">

@@ -106,10 +106,23 @@ namespace IdleBusiness.Controllers
                 .Include(s => s.Type)
                 .AsNoTracking()
                 .SingleOrDefaultAsync(s => s.Id == purchasableId && s.UnlocksAtTotalEarnings <= user.Business.LifeTimeEarnings));
+            if (purchasableId == 0 || purchaseCount == 0) return StatusCode(500);
             if (purchasable == null) return Ok();
             purchasable = PurchasableHelper.AdjustPurchasableCostWithSectorBonus(purchasable, user.Business);
 
-            await _businessHelper.UpdateGainsSinceLastCheckIn(user.Business.Id);
+            try
+            {
+                await _businessHelper.UpdateGainsSinceLastCheckIn(user.Business.Id);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogError(ex, "Concurrency issue while trying to update gains");
+                return StatusCode(500, JsonResponseHelper.PurchaseResponse(user.Business, user.Business.BusinessPurchases.SingleOrDefault(s => s.PurchaseId == purchasable.Id), null));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
 
             if (!PurchasableHelper.EnsurePurchaseIsValid(purchasable, user.Business, purchaseCount))
                 return Ok();
@@ -119,13 +132,25 @@ namespace IdleBusiness.Controllers
 
             _context.Entrepreneurs.Update(user);
 
-            var jsonResponse = await _purchasableHelper.PerformSpecialOnPurchaseActions(purchasable, user.Business);
+            var purchaseJson = await _purchasableHelper.PerformSpecialOnPurchaseActions(purchasable, user.Business);
 
             if (purchasable.IsGlobalPurchase)
                 await _purchasableHelper.ApplyGlobalPurchaseBonus(purchasable, user.Business);
 
-            if (!await _appHelper.TrySaveChangesConcurrentAsync(_context)) return StatusCode(500);
-            return Ok(jsonResponse);
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(JsonResponseHelper.PurchaseResponse(user.Business, user.Business.BusinessPurchases.SingleOrDefault(s => s.PurchaseId == purchasable.Id), purchaseJson));
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogError(ex, "Concurrency issue while trying to buy item");
+                return StatusCode(500, JsonResponseHelper.PurchaseResponse(user.Business, user.Business.BusinessPurchases.SingleOrDefault(s => s.PurchaseId == purchasable.Id), null));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500);
+            }
         }
 
         [HttpPost]
@@ -146,6 +171,7 @@ namespace IdleBusiness.Controllers
         {
             var business = new Business();
             business.Name = GenerateBusinessName();
+            if (_context.Entrepreneurs.Any(s => s.UserName.ToLower() == business.Name)) business.Name += new Random().Next(1, 1000);
             var user = new Entrepreneur()
             {
                 Business = business,
@@ -153,6 +179,8 @@ namespace IdleBusiness.Controllers
                 LockoutEnabled = false,
                 TwoFactorEnabled = false,
                 UserName = business.Name,
+                NormalizedEmail = business.Name.ToUpper(),
+                NormalizedUserName = business.Name.ToUpper()
             };
 
             _context.Entrepreneurs.Add(user);

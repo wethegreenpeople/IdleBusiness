@@ -25,11 +25,14 @@ namespace IdleBusiness.Models
 
 
         public virtual Sector Sector { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
         public virtual Entrepreneur Owner { get; set; }
         public virtual ICollection<BusinessPurchase> BusinessPurchases { get; set; }
         public virtual ICollection<BusinessInvestment> BusinessInvestments { get; set; } = new List<BusinessInvestment>();
         public virtual ICollection<Investment> GroupInvestments { get; set; } = new List<Investment>();
+        [Newtonsoft.Json.JsonIgnore]
         public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
+        [Newtonsoft.Json.JsonIgnore]
         public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
 
         public Business()

@@ -31,18 +31,21 @@ namespace IdleBusiness.Helpers
                 { 
                     s.CashPerSecond += purchase.CashModifier;
                     s.MaxEmployeeAmount += purchase.MaxEmployeeModifier;
+                    s.EspionageDefense += purchase.EspionageDefenseModifier;
+                    s.EspionageChance += purchase.EspionageModifier;
                     return s; 
                 }));
             await _context.SaveChangesAsync();
         }
 
-        public async Task<string> PerformSpecialOnPurchaseActions(Purchasable purchasable, Business business)
+        public async Task<PurchasableJsonReturn> PerformSpecialOnPurchaseActions(Purchasable purchasable, Business business)
         {
             var repo = new SpecialPurchasableRepo(_context, this);
             var special = repo.GetSpecialPurchasable(purchasable, business);
             if (special == null) return null;
+            await special.OnPurchaseEffect();
 
-            return (await special.OnPurchaseEffect()).ToString();
+            return special.PurchaseResponse;
         }
 
         public async Task<Business> ApplyItemStatsToBussiness(Purchasable purchasable, Business business, int purchaseCount)

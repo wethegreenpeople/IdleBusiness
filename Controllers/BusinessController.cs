@@ -242,6 +242,7 @@ namespace IdleBusiness.Controllers
             var costOfEspionage = CalculateEspionageCost(user.Business);
             if (companyToEspionage.AmountEmployed < 70) return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
             if (user.Business.Cash < costOfEspionage) return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
+            if (user.Business.Id == companyToEspionageId) return RedirectToAction("Index", "Business", new { id = companyToEspionageId });
 
             user.Business.Cash -= costOfEspionage;
             _context.Business.Update(user.Business);
@@ -295,6 +296,7 @@ namespace IdleBusiness.Controllers
             var user = await GetCurrentEntrepreneur();
             var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToThieveId);
             if (companyToEspionage == null) return RedirectToAction("Index", "Business", new { id = companyToThieveId });
+            if (user.Business.Id == companyToThieveId) return RedirectToAction("Index", "Business", new { id = companyToThieveId });
             var costOfEspionage = CalculateEspionageCost(user.Business);
             if (!PurchasableHelper.HasBusinessPurchasedItem(user.Business.BusinessPurchases, 35)) return RedirectToAction("Index", "Business", new { id = companyToThieveId });
 
@@ -329,6 +331,7 @@ namespace IdleBusiness.Controllers
             var user = await GetCurrentEntrepreneur();
             var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == companyToArsonId);
             if (companyToEspionage == null) return RedirectToAction("Index", "Business", new { id = companyToArsonId });
+            if (user.Business.Id == companyToArsonId) return RedirectToAction("Index", "Business", new { id = companyToArsonId });
             if (!PurchasableHelper.HasBusinessPurchasedItem(user.Business.BusinessPurchases, 35)) return RedirectToAction("Index", "Business", new { id = companyToArsonId });
 
             var costOfEspionage = CalculateEspionageCost(user.Business);
