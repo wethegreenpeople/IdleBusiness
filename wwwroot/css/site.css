@@ -161,6 +161,11 @@ body {
     border-color: #48414c;
 }
 
+.purchase-card {
+    min-width: 13rem;
+    cursor: pointer;
+}
+
 /*.carousel-inner .carousel-item {
     transition: -webkit-transform 100ms ease;
     transition: transform 100ms ease;
