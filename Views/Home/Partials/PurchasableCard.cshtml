@@ -16,7 +16,7 @@
      data-purchase-item-unlocksAtPrice="@Model.Purchase.UnlocksAtTotalEarnings"
      data-purchase-item-isSinglePurchase="@Model.Purchase.IsSinglePurchase"
      data-purchase-item-amountOwned="@(Model.HomeVM.PurchasedItems?.SingleOrDefault(s => s.purchasable.Id == Model.Purchase.Id).amount ?? 0)">
-    <div class="card-body">
+    <div class="card-body no-select">
         <div class="row">
             <div class="col">
                 <h5 class="card-title" style="white-space:nowrap;">
