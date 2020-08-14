@@ -21,6 +21,7 @@ namespace IdleBusiness.Data
         public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<BusinessInvestment> BusinessInvestments { get; set; }
+        public virtual DbSet<ApiKey> ApiKeys { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -85,6 +86,13 @@ namespace IdleBusiness.Data
                 .WithMany(s => s.SentMessages)
                 .HasForeignKey(s => s.SendingBusinessId)
                 .IsRequired(false);
+
+            modelBuilder.Entity<ApiKey>()
+                .HasKey(s => s.Id);
+
+            modelBuilder.Entity<ApiKey>()
+                .Property(s => s.Key)
+                .IsRequired();
 
             base.OnModelCreating(modelBuilder);
         }

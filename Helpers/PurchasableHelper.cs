@@ -51,6 +51,7 @@ namespace IdleBusiness.Helpers
         public async Task<Business> ApplyItemStatsToBussiness(Purchasable purchasable, Business business, int purchaseCount)
         {
             var existingBusinessPurchasesCount = (await _context.BusinessPurchases
+                .Include(s => s.Purchase)
                 .SingleOrDefaultAsync(s => s.BusinessId == business.Id && s.PurchaseId == purchasable.Id))?.AmountOfPurchases ?? 0;
 
             var currentAdjustedPrice = (double)(purchasable.Cost * Math.Pow((1 + purchasable.PerOwnedModifier), existingBusinessPurchasesCount));
@@ -110,7 +111,7 @@ namespace IdleBusiness.Helpers
         public static Purchasable SwapPurchaseForUpgradeIfAlreadyBought(Purchasable purchase, Business business)
         {
             if (purchase.PurchasableUpgrade == null) return purchase;
-            if (business.BusinessPurchases.Any(s => s.Purchase.Id == purchase.Id)) 
+            if (business.BusinessPurchases.Any(s => s.PurchaseId == purchase.Id)) 
                 return SwapPurchaseForUpgradeIfAlreadyBought(purchase.PurchasableUpgrade, business);
 
             return purchase;

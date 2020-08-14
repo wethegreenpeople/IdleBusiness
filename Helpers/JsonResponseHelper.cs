@@ -22,5 +22,19 @@ namespace IdleBusiness.Helpers
 
             return response;
         }
+
+        public static string PurchaseResponseWithPurchase(Business business, BusinessPurchase businessPurchase, PurchasableJsonReturn purchaseResponse = null)
+        {
+            var response = JsonConvert.SerializeObject(new
+            {
+                Business = business,
+                Purchasable = businessPurchase.Purchase,
+                TotalOwned = businessPurchase.AmountOfPurchases,
+                PurchaseResponse = purchaseResponse,
+            },
+            new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+
+            return response;
+        }
     }
 }

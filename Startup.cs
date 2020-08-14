@@ -22,6 +22,12 @@ using Hangfire.States;
 using Hangfire.Common;
 using IdleBusiness.Helpers;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Swashbuckle.AspNetCore.Swagger;
+using NSwag.Generation.Processors.Security;
+using NSwag;
 
 namespace IdleBusiness
 {
@@ -63,6 +69,47 @@ namespace IdleBusiness
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
+
+            services.AddAuthentication()
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("Jwt:Key"))),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                };
+            });
+
+            services.AddSwaggerDocument(config =>
+            {
+                config.OperationProcessors.Add(new OperationSecurityScopeProcessor("JWT Token"));
+                config.AddSecurity("JWT Token", Enumerable.Empty<string>(),
+                    new OpenApiSecurityScheme()
+                    {
+                        Type = OpenApiSecuritySchemeType.ApiKey,
+                        Name = "Authorization",
+                        In = OpenApiSecurityApiKeyLocation.Header,
+                        BearerFormat = "Bearer {token}",
+                        Description = "Copy this into the value field: Bearer {token}"
+                    }
+                );
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "IdleBusiness API";
+                    document.Info.Contact = new NSwag.OpenApiContact
+                    {
+                        Name = "John Singh",
+                        Email = "wethegreenpeople@gmail.com",
+                        Url = "https://github.com/wethegreenpeople/idlebusiness"
+                    };
+                };
+            });
 
             services.AddTransient<PurchasableHelper>(s => new PurchasableHelper(ApplicationDbContextFactory.CreateDbContext(Configuration)));
             services.AddTransient<IEmailSender, MailHelper>();
@@ -111,6 +158,9 @@ namespace IdleBusiness
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
 
             app.UseEndpoints(endpoints =>
             {
