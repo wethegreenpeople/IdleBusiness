@@ -56,7 +56,7 @@ namespace IdleBusiness.Api.Controllers
             var adjustedPurchasbles = purchasables
                 .Select(s => 
                 { 
-                    var amountOfPurchases = s.BusinessPurchases.SingleOrDefault(d => d.PurchaseId == s.Id).AmountOfPurchases; 
+                    var amountOfPurchases = s?.BusinessPurchases?.FirstOrDefault(d => d.PurchaseId == s.Id)?.AmountOfPurchases ?? 0; 
                     s.BusinessPurchases = null; 
                     return new { Purchasable = s, AmountOfPurchases = amountOfPurchases }; 
                 })
