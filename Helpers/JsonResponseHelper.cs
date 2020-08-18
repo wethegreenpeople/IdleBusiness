@@ -28,8 +28,8 @@ namespace IdleBusiness.Helpers
             var response = JsonConvert.SerializeObject(new
             {
                 Business = business,
-                Purchasable = businessPurchase.Purchase,
-                TotalOwned = businessPurchase.AmountOfPurchases,
+                Purchasable = businessPurchase?.Purchase,
+                TotalOwned = businessPurchase?.AmountOfPurchases ?? 0,
                 PurchaseResponse = purchaseResponse,
             },
             new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
