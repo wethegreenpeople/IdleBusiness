@@ -22,7 +22,7 @@ namespace IdleBusiness
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>()
-                    .UseUrls("https://192.168.1.11:5000")
+                    //.UseUrls("https://192.168.1.11:5000")
                     .ConfigureLogging(logging =>
                     {
                         logging.ClearProviders();

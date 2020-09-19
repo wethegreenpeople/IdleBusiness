@@ -38,6 +38,7 @@ namespace IdleBusiness.Models
         public Business()
         {
             this.Cash = 100;
+            this.LifeTimeEarnings = 100;
             this.LastCheckIn = DateTime.UtcNow;
             this.MaxEmployeeAmount = 50;
             this.MaxItemAmount = 5;
