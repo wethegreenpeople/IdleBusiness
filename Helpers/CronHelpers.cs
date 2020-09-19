@@ -23,8 +23,9 @@ namespace IdleBusiness.Helpers
             var businessInvestments = _context.BusinessInvestments
                 .Include(s => s.Business)
                 .Include(s => s.Investment)
-                .Where(s => s.Investment.InvestmentExpiration.Date <= DateTime.UtcNow)
                 .Where(s => s.InvestmentType == InvestmentType.Investment)
+                .AsEnumerable()
+                .Where(s => s.Investment.InvestmentExpiration.Date.ToUniversalTime() <= DateTime.UtcNow)
                 .ToList()
                 .GroupBy(s => s.InvestmentId);
                 
@@ -69,7 +70,8 @@ namespace IdleBusiness.Helpers
                 .Include(s => s.Business)
                 .Include(s => s.Investment)
                 .Where(s => s.InvestmentType == InvestmentType.Espionage)
-                .Where(s => s.Investment.InvestmentExpiration.Date <= DateTime.UtcNow)
+                .AsEnumerable()
+                .Where(s => s.Investment.InvestmentExpiration.Date.ToUniversalTime() <= DateTime.UtcNow)
                 .ToList();
 
             foreach (var item in espionages)
