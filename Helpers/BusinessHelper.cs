@@ -102,14 +102,26 @@ namespace IdleBusiness.Helpers
                 .ToList();
         }
 
-        public async Task<List<BusinessInvestment>> GetEspionagesAgainstCompany(int businessId)
+        public async Task<List<(BusinessInvestment Investee, BusinessInvestment Investor)>> GetEspionagesAgainstCompany(int businessId)
         {
-            return await _context.BusinessInvestments
+            var espionages = await _context.BusinessInvestments
+                .Include(s => s.Business)
                 .Include(s => s.Investment)
                 .Where(s => s.BusinessId == businessId)
                 .Where(s => s.InvestmentType == InvestmentType.Espionage)
                 .Where(s => s.InvestmentDirection == InvestmentDirection.Investee)
                 .ToListAsync();
+
+            return (await _context.BusinessInvestments
+                .Include(s => s.Investment)
+                .Include(s => s.Business)
+                .Where(s => s.BusinessId != businessId)
+                .Where(s => s.InvestmentType == InvestmentType.Espionage)
+                .Where(s => s.InvestmentDirection == InvestmentDirection.Investor)
+                .ToListAsync())
+                .Where(s => espionages.Any(d => d.Investment.Id == s.Investment.Id))
+                .Select(s => (Investee: espionages.Single(d => d.Investment.Id == s.Investment.Id), Investor: s))
+                .ToList();
         }
 
         public async Task<List<(BusinessInvestment Investee, BusinessInvestment Investor)>> GetEspionagesCompanyHasComitted(int businessId)

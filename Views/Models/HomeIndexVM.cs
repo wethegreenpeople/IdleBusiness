@@ -16,7 +16,7 @@ namespace IdleBusiness.Views.Models
         public List<(Purchasable purchasable, int amount)> PurchasedItems { get; set; }
         public List<SelectListItem> AvailableSectors { get; set; }
         public List<(BusinessInvestment Investee, BusinessInvestment Investor)> InvestmentsInBusiness { get; set; }
-        public List<BusinessInvestment> EspionagesAgainstBusiness { get; set; }
+        public List<(BusinessInvestment Investee, BusinessInvestment Investor)> EspionagesAgainstBusiness { get; set; }
 
         public string TotalInvestmentsInCompany => InvestmentsInBusiness?.Count.ToString();
         public string CurrentCash => Business?.Cash.ToString();
