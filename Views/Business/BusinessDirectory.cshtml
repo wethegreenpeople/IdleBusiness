@@ -19,14 +19,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model.Where(s => s.CashPerSecond != 0))
+                        @foreach (var business in Model.Where(s => s.CashPerSecond != 0))
                         {
-                            <tr>
-                                <td>@item.Id</td>
-                                <td>@item.Name</td>
-                                <td><span class="formatted-number" data-number-to-format="@item.CashPerSecond" data-number-format-style="$0a"></span></td>
-                                <td><span class="formatted-number" data-number-to-format="@item.Cash" data-number-format-style="$0a"></span></td>
-                            </tr>
+                        <tr>
+                            <td>@business.Id</td>
+                            <td>@business.Name</td>
+                            <td data-sort="@business.CashPerSecond"><span class="formatted-number" data-number-to-format="@business.CashPerSecond" data-number-format-style="$0a"></span></td>
+                            <td data-sort="@business.Cash"><span class="formatted-number" data-number-to-format="@business.Cash" data-number-format-style="$0a"></span></td>
+                        </tr>
                         }
                     </tbody>
                 </table>
