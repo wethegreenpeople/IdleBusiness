@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,10 +36,14 @@ namespace IdleBusiness.Api.Controllers
             _config = config;
         }
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [HttpGet("/api/auth/login")]
-        public async Task<IActionResult> LogIn(string username, string password)
+        [HttpPost("/api/auth/login")]
+        public async Task<IActionResult> LogIn(string token)
         {
+            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+            var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
+            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+            var username = credentials[0];
+            var password = credentials[1];
             var result = await _signInManager.PasswordSignInAsync(username, password, true, lockoutOnFailure: false);
             if (result.Succeeded)
             {

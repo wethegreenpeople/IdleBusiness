@@ -98,6 +98,15 @@ namespace IdleBusiness
                         Description = "Copy this into the value field: Bearer {token}"
                     }
                 );
+                config.AddSecurity("Basic", Enumerable.Empty<string>(),
+                    new OpenApiSecurityScheme()
+                    {
+                        Type = OpenApiSecuritySchemeType.Basic,
+                        Name = "Basic auth",
+                        In = OpenApiSecurityApiKeyLocation.Header,
+                        Description = "Basic auth is only used for login authentication. Use bearer tokens for all other api requests."
+                    }
+                );
                 config.PostProcess = document =>
                 {
                     document.Info.Version = "v1";
