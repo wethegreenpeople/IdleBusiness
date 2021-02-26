@@ -39,6 +39,23 @@ namespace IdleBusiness.Api.Controllers
         [HttpPost("/api/auth/login")]
         public async Task<IActionResult> LogIn(string token)
         {
+            if (token == null) return Unauthorized();
+
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenParameters = new TokenValidationParameters()
+                {
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config.GetValue<string>("JWT:Key"))),
+                };
+                tokenHandler.ValidateToken(token, tokenParameters, out SecurityToken validatedToken);
+            }
+            catch { return Unauthorized(); }
+
             var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
             var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
             var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
@@ -56,6 +73,54 @@ namespace IdleBusiness.Api.Controllers
                 return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(business));
             }
             else return Unauthorized();
+        }
+
+        [HttpPost("/api/auth/register")]
+        public async Task<IActionResult> Register(string token, string businessName)
+        {
+            if (token == null) return Unauthorized();
+            if (businessName == null) return StatusCode(400, "Need to include business name");
+
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenParameters = new TokenValidationParameters()
+                {
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config.GetValue<string>("JWT:Key"))),
+                };
+                tokenHandler.ValidateToken(token, tokenParameters, out SecurityToken validatedToken);
+            }
+            catch { return Unauthorized(); }
+
+            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+            var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
+            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+            var username = credentials[0];
+            var password = credentials[1];
+
+            var user = new Entrepreneur
+            {
+                UserName = username,
+                Email = username,
+                Business = new Business()
+            };
+            user.Business.Name = businessName;
+            var result = await _signInManager.UserManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation($"{username} account created.");
+                var business = (await _context.Entrepreneurs
+                    .Include(s => s.Business)
+                    .SingleOrDefaultAsync(s => s.NormalizedEmail == username.ToUpper()))
+                    .Business;
+
+                return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(business));
+            }
+            else return StatusCode(500);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
