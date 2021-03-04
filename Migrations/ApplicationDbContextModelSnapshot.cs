@@ -44,6 +44,9 @@ namespace IdleBusiness.Migrations
                     b.Property<int>("AmountOwnedItems")
                         .HasColumnType("int");
 
+                    b.Property<double>("BusinessScore")
+                        .HasColumnType("double");
+
                     b.Property<double>("Cash")
                         .HasColumnType("double");
 

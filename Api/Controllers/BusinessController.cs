@@ -37,7 +37,8 @@ namespace IdleBusiness.Api.Controllers
         public async Task<IActionResult> GetBusiness(string businessId)
         {
             _logger.LogTrace($"Get business {businessId}");
-            var business = await _context.Business.SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
+            var business = await _context.Business.Include(s => s.Owner).SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
+            business.BusinessScore = business.Owner.Score;
 
             return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() {ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
