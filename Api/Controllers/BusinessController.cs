@@ -62,5 +62,23 @@ namespace IdleBusiness.Api.Controllers
             
             
         }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("/api/business/leaderboard")]
+        public async Task<IActionResult> GetTopBusinesses(int amountOfResults)
+        {
+            try
+            {
+                var topBusinesses = _context.Business.
+                    Include(s => s.Owner)
+                    .OrderByDescending(s => s.Owner.Score)
+                    .Take(amountOfResults);
+
+                return Ok(JsonConvert.SerializeObject(topBusinesses, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+            }
+            catch { return StatusCode(500); }
+
+
+        }
     }
 }
