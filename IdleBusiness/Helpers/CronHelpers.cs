@@ -23,9 +23,10 @@ namespace IdleBusiness.Helpers
             var businessInvestments = _context.BusinessInvestments
                 .Include(s => s.Business)
                 .Include(s => s.Investment)
+                    .ThenInclude(s => s.BusinessInvestments)
                 .Where(s => s.InvestmentType == InvestmentType.Investment)
                 .AsEnumerable()
-                .Where(s => s.Investment.InvestmentExpiration.Date.ToUniversalTime() <= DateTime.UtcNow)
+                .Where(s => { var elapsedTime = DateTime.UtcNow - s.Investment.InvestmentExpiration.Date.ToUniversalTime(); return elapsedTime.TotalHours > 12; })
                 .ToList()
                 .GroupBy(s => s.InvestmentId);
                 
@@ -44,6 +45,7 @@ namespace IdleBusiness.Helpers
                     DateReceived = DateTime.UtcNow,
                     MessageBody = $"You gained ${investorsProfit.ToKMB()} from your investments in {investeeInvestment.Business.Name}",
                     ReceivingBusinessId = investorInvestment.Business.Id,
+                    ReadByBusiness = false
                 });
 
                 // Investee
@@ -53,12 +55,16 @@ namespace IdleBusiness.Helpers
                     DateReceived = DateTime.UtcNow,
                     MessageBody = $"After investments were removed, you lost ${investeeInvestment.Investment.InvestmentAmount.ToKMB()} CPS",
                     ReceivingBusinessId = investeeInvestment.Business.Id,
+                    ReadByBusiness = false
                 });
 
                 _context.Business.Update(investorInvestment.Business);
                 _context.Business.Update(investeeInvestment.Business);
+
                 _context.BusinessInvestments.Remove(investorInvestment);
+                _context.Investments.Remove(investorInvestment.Investment);
                 _context.BusinessInvestments.Remove(investeeInvestment);
+                _context.Investments.Remove(investeeInvestment.Investment);
             }
 
             _context.SaveChanges();
@@ -71,7 +77,7 @@ namespace IdleBusiness.Helpers
                 .Include(s => s.Investment)
                 .Where(s => s.InvestmentType == InvestmentType.Espionage)
                 .AsEnumerable()
-                .Where(s => s.Investment.InvestmentExpiration.Date.ToUniversalTime() <= DateTime.UtcNow)
+                .Where(s => { var elapsedTime = DateTime.UtcNow - s.Investment.InvestmentExpiration.Date.ToUniversalTime(); return elapsedTime.TotalHours > 12; })
                 .ToList();
 
             foreach (var item in espionages)
