@@ -5,6 +5,10 @@
     <UserSecretsId>aspnet-IdleBusiness-565E8C0C-AA75-4CCC-A6A7-340CCB70965E</UserSecretsId>
   </PropertyGroup>
 
+   <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Migrations\20200710222415_AddEntrepreneurDbContext.cs" />
     <Compile Remove="Migrations\20200710222415_AddEntrepreneurDbContext.Designer.cs" />
