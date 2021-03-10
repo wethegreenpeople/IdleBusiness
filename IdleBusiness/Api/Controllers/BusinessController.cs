@@ -41,11 +41,12 @@ namespace IdleBusiness.Api.Controllers
                 .Include(s => s.Owner)
                 .Include(s => s.BusinessInvestments)
                     .ThenInclude(s => s.Investment)
+                        .ThenInclude(s => s.BusinessInvestments) // this is the level that contains both ends of the investment
                 .Include(s => s.GroupInvestments)
                 .SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
             business.BusinessScore = business.Owner.Score;
 
-            return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() {ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+            return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
