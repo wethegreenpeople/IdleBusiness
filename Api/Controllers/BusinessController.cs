@@ -37,7 +37,12 @@ namespace IdleBusiness.Api.Controllers
         public async Task<IActionResult> GetBusiness(string businessId)
         {
             _logger.LogTrace($"Get business {businessId}");
-            var business = await _context.Business.Include(s => s.Owner).SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
+            var business = await _context.Business
+                .Include(s => s.Owner)
+                .Include(s => s.BusinessInvestments)
+                    .ThenInclude(s => s.Investment)
+                .Include(s => s.GroupInvestments)
+                .SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
             business.BusinessScore = business.Owner.Score;
 
             return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() {ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
@@ -73,6 +78,9 @@ namespace IdleBusiness.Api.Controllers
                     Include(s => s.Owner)
                     .OrderByDescending(s => s.Owner.Score)
                     .Take(amountOfResults);
+                // Modify the business score with the owner's score. These might be two seperate scores at some point
+                // so I don't want to just persist the owner's score inside the business object
+                await topBusinesses.ForEachAsync(s => s.BusinessScore = s.Owner.Score);
 
                 return Ok(JsonConvert.SerializeObject(topBusinesses, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
             }
