@@ -89,5 +89,24 @@ namespace IdleBusiness.Api.Controllers
 
 
         }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("/api/business/messages")]
+        public async Task<IActionResult> GetBusinessMessages(int businessId, int amountOfResults)
+        {
+            try
+            {
+                var messages = await _context.Messages
+                    .Where(s => s.ReceivingBusinessId == businessId)
+                    .OrderByDescending(s => s.Id)
+                    .Take(amountOfResults)
+                    .ToListAsync();
+
+                return Ok(JsonConvert.SerializeObject(messages, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+            }
+            catch { return StatusCode(500); }
+
+
+        }
     }
 }
