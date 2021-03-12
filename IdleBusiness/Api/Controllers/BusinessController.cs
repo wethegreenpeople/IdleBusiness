@@ -23,6 +23,7 @@ namespace IdleBusiness.Api.Controllers
         private readonly ILogger _logger;
         private readonly BusinessHelper _businessHelper;
         private readonly EntrepreneurHelper _entrepreneurHelper;
+        private readonly ApplicationHelper _applicationHelper;
 
         public BusinessController(ApplicationDbContext context, ILogger<BusinessController> logger)
         {
@@ -30,6 +31,7 @@ namespace IdleBusiness.Api.Controllers
             _logger = logger;
             _businessHelper = new BusinessHelper(_context, _logger);
             _entrepreneurHelper = new EntrepreneurHelper(_context, _logger);
+            _applicationHelper = new ApplicationHelper(_logger);
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
@@ -103,6 +105,58 @@ namespace IdleBusiness.Api.Controllers
                     .ToListAsync();
 
                 return Ok(JsonConvert.SerializeObject(messages, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+            }
+            catch { return StatusCode(500); }
+
+
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("/api/business/invest")]
+        public async Task<IActionResult> InvestInBusiness(int investingBusinessId, int investedBusinessId, double investmentAmount)
+        {
+            try
+            {
+                if (investingBusinessId == investedBusinessId) return StatusCode(400, "You cannot invest in yourself");
+
+                var investingBusiness = await _context.Business.SingleAsync(s => s.Id == investingBusinessId);
+                var investedBusiness = await _context.Business.SingleAsync(s => s.Id == investedBusinessId);
+                if (investedBusiness.LifeTimeEarnings < 1000000) return StatusCode(400, "Cannot invest until you have earned 1,000,000 lifetime");
+                if (investmentAmount <= 0 || investmentAmount > investingBusiness.CashPerSecond) return StatusCode(400, "You do not have enough to invest");
+
+                var investment = new Investment()
+                {
+                    InvestmentAmount = investmentAmount,
+                    InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                    InvestedBusinessCashAtInvestment = investedBusiness.Cash,
+                    InvestedBusinessCashPerSecondAtInvestment = investedBusiness.CashPerSecond,
+                    InvestmentType = InvestmentType.Investment,
+                };
+                var investorBusinessInvestment = new BusinessInvestment()
+                {
+                    Investment = investment,
+                    InvestmentDirection = InvestmentDirection.Investor,
+                    InvestmentType = InvestmentType.Investment
+                };
+                var investeeBusinessInvestment = new BusinessInvestment()
+                {
+                    Investment = investment,
+                    InvestmentDirection = InvestmentDirection.Investee,
+                    InvestmentType = InvestmentType.Investment
+                };
+
+                investingBusiness.BusinessInvestments.Add(investorBusinessInvestment);
+                investedBusiness.BusinessInvestments.Add(investeeBusinessInvestment);
+
+                investingBusiness.CashPerSecond -= investmentAmount;
+                investedBusiness.CashPerSecond += investmentAmount;
+
+                _context.Business.Update(investingBusiness);
+                _context.Business.Update(investedBusiness);
+                await _applicationHelper.TrySaveChangesConcurrentAsync(_context);
+
+                return StatusCode(200);
+
             }
             catch { return StatusCode(500); }
 
