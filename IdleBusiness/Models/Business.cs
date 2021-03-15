@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -23,6 +24,23 @@ namespace IdleBusiness.Models
         public int AmountOwnedItems { get; set; }
         public double BusinessScore { get; set; }
         public byte[] RowVersion { get; set; }
+
+        [NotMapped]
+        private double _espionageCost;
+        [NotMapped]
+        public double EspionageCost
+        {
+            get
+            {
+                var cost = this.Cash * 0.01;
+                if (cost < 10000) cost = 10000;
+                return cost;
+            }
+            set
+            {
+                _espionageCost = value;
+            }
+        }
 
 
         public virtual Sector Sector { get; set; }
