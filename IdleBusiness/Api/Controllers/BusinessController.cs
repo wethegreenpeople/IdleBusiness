@@ -52,6 +52,22 @@ namespace IdleBusiness.Api.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("/api/business/businessbyname")]
+        public async Task<IActionResult> GetBusinessByName(string businessName)
+        {
+            var business = await _context.Business
+                .Include(s => s.Owner)
+                .Include(s => s.BusinessInvestments)
+                    .ThenInclude(s => s.Investment)
+                        .ThenInclude(s => s.BusinessInvestments) // this is the level that contains both ends of the investment
+                .Include(s => s.GroupInvestments)
+                .SingleOrDefaultAsync(s => s.Name == businessName);
+            if (business == null) return StatusCode(404, "Business not found");
+            business.BusinessScore = business.Owner.Score;
+            return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("/api/business/update")]
         public async Task<IActionResult> UpdateBusinessGains(string businessId)
         {
@@ -67,8 +83,6 @@ namespace IdleBusiness.Api.Controllers
                 return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
             }
             catch { return StatusCode(500); }
-            
-            
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
