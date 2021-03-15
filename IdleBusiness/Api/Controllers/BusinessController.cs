@@ -162,5 +162,66 @@ namespace IdleBusiness.Api.Controllers
 
 
         }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("/api/business/espionage")]
+        public async Task<IActionResult> EspionageBusiness(int attackingBusinessId, int defendingBusinessId)
+        {
+            var attackingBusiness = await _context.Business.SingleOrDefaultAsync(s => s.Id == attackingBusinessId);
+            var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == defendingBusinessId);
+            if (companyToEspionage.AmountEmployed < 70) return StatusCode(400, "Cannot espionage until you have 70 employeess");
+            if (attackingBusiness.Cash < attackingBusiness.EspionageCost) return StatusCode(400, "You do not have enough cash to commit this espionage");
+            if (attackingBusiness.Id == defendingBusinessId) return StatusCode(400, "You cannot espionage yourself");
+
+            attackingBusiness.Cash -= attackingBusiness.EspionageCost;
+            _context.Business.Update(attackingBusiness);
+            await _context.SaveChangesAsync();
+
+            var rand = new Random();
+            if (((attackingBusiness.EspionageChance * 100) - (companyToEspionage.EspionageDefense * 100)) < rand.Next(0, 100)) return StatusCode(200, "Unsuccessful Espionage");
+
+            var espionageAmountPercentage = CalculateEspionagePercentage(companyToEspionage, attackingBusiness);
+            var espionageAmount = companyToEspionage.CashPerSecond * espionageAmountPercentage;
+
+            var investment = new Investment()
+            {
+                InvestmentAmount = (espionageAmount),
+                InvestmentExpiration = DateTime.UtcNow.AddDays(1),
+                InvestmentType = InvestmentType.Espionage,
+            };
+            var investorBusinessInvestment = new BusinessInvestment()
+            {
+                InvestmentType = InvestmentType.Espionage,
+                Investment = investment,
+                InvestmentDirection = InvestmentDirection.Investor,
+            };
+            var investeeBusinessInvestment = new BusinessInvestment()
+            {
+                InvestmentType = InvestmentType.Espionage,
+                Investment = investment,
+                InvestmentDirection = InvestmentDirection.Investee,
+            };
+
+            companyToEspionage.CashPerSecond = espionageAmount;
+            companyToEspionage.EspionageDefense += .05F;
+
+            attackingBusiness.BusinessInvestments.Add(investorBusinessInvestment);
+            companyToEspionage.BusinessInvestments.Add(investeeBusinessInvestment);
+            _context.Business.Update(companyToEspionage);
+            _context.Business.Update(attackingBusiness);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(200, "Successful Espionage!");
+        }
+
+        [NonAction]
+        private double CalculateEspionagePercentage(Business businessToEspionage, Business espionagingBusiness)
+        {
+            var espionageAmount = espionagingBusiness.EspionageChance - businessToEspionage.EspionageDefense;
+            if (espionageAmount <= 0) espionageAmount = 0;
+            else if (espionageAmount >= .5) espionageAmount = .5;
+            return espionageAmount;
+        }
+
     }
 }
