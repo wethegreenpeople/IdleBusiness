@@ -53,7 +53,7 @@ namespace IdleBusiness.Api.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("/api/business/businessbyname")]
-        public async Task<IActionResult> GetBusinessByName(string businessName)
+        public async Task<IActionResult> GetABusinessByName(string businessName)
         {
             var business = await _context.Business
                 .Include(s => s.Owner)
