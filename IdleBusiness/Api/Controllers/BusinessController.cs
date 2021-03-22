@@ -67,6 +67,34 @@ namespace IdleBusiness.Api.Controllers
             return Ok(JsonConvert.SerializeObject(business, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
+        // Not "perfect" random, but good enough
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("/api/business/randombusiness")]
+        public async Task<IActionResult> GetRandomBusinesses(int amountOfBusinesses)
+        {
+            IQueryable<Business> GetBusinesses()
+            {
+                var rand = new System.Random();
+                var skip = (int)(rand.NextDouble() * (_context.Business.Count() - amountOfBusinesses));
+                var businesses = _context.Business
+                    .OrderBy(b => b.Id)
+                    .Skip(skip)
+                    .Include(s => s.Owner)
+                    .Include(s => s.BusinessInvestments)
+                        .ThenInclude(s => s.Investment)
+                            .ThenInclude(s => s.BusinessInvestments) // this is the level that contains both ends of the investment
+                    .Take(amountOfBusinesses);
+
+                if (businesses == null || businesses.Count() < amountOfBusinesses) return GetBusinesses();
+
+                return businesses;
+            }
+
+            var businesses = GetBusinesses();
+            if (amountOfBusinesses <= 0) return StatusCode(400, "Invalid amount of businesses");
+            return Ok(JsonConvert.SerializeObject(businesses, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+        }
+
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("/api/business/update")]
         public async Task<IActionResult> UpdateBusinessGains(string businessId)
@@ -136,7 +164,8 @@ namespace IdleBusiness.Api.Controllers
                 var investingBusiness = await _context.Business.SingleAsync(s => s.Id == investingBusinessId);
                 var investedBusiness = await _context.Business.SingleAsync(s => s.Id == investedBusinessId);
                 if (investedBusiness.LifeTimeEarnings < 1000000) return StatusCode(400, "Cannot invest until you have earned 1,000,000 lifetime");
-                if (investmentAmount <= 0 || investmentAmount > investingBusiness.CashPerSecond) return StatusCode(400, "You do not have enough to invest");
+                if (investmentAmount > investingBusiness.CashPerSecond) return StatusCode(400, "You do not have enough to invest");
+                if (investmentAmount <= 0) return StatusCode(400, "You must invest more than $0");
 
                 var investment = new Investment()
                 {
