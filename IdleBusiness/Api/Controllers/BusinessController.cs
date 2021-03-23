@@ -257,6 +257,15 @@ namespace IdleBusiness.Api.Controllers
             return StatusCode(200, "Successful Espionage!");
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpGet("/api/business/hasunreadmessages")]
+        public async Task<IActionResult> HasUnreadMessages(int businessId)
+        {
+            var hasUnreadMessages = await _context.Messages.AnyAsync(s => s.ReceivingBusinessId == businessId && !s.ReadByBusiness);
+
+            return Ok(hasUnreadMessages);
+        }
+
         [NonAction]
         private double CalculateEspionagePercentage(Business businessToEspionage, Business espionagingBusiness)
         {
