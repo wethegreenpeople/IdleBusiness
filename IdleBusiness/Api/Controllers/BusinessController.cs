@@ -146,13 +146,14 @@ namespace IdleBusiness.Api.Controllers
                     .Take(amountOfResults)
                     .ToListAsync();
 
+                var serialized = JsonConvert.SerializeObject(messages, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+
                 // Going through and marking the requested messages as read
-                var updatedMessages = messages;
-                updatedMessages.ForEach(s => s.ReadByBusiness = true);
-                _context.Messages.UpdateRange(updatedMessages);
+                messages.ForEach(s => s.ReadByBusiness = true);
+                _context.Messages.UpdateRange(messages);
                 await _context.SaveChangesAsync();
 
-                return Ok(JsonConvert.SerializeObject(messages, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                return Ok(serialized);
             }
             catch { return StatusCode(500); }
 
