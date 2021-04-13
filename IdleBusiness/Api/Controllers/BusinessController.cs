@@ -219,7 +219,7 @@ namespace IdleBusiness.Api.Controllers
         {
             var attackingBusiness = await _context.Business.SingleOrDefaultAsync(s => s.Id == attackingBusinessId);
             var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == defendingBusinessId);
-            if (companyToEspionage.AmountEmployed < 70) return StatusCode(400, "Cannot espionage until you have 70 employeess");
+            if (companyToEspionage.AmountEmployed < 70) return StatusCode(400, "The business you are trying to espionage is too small. You cannot espionage a business until they have 70 employees.");
             if (attackingBusiness.Cash < attackingBusiness.EspionageCost) return StatusCode(400, "You do not have enough cash to commit this espionage");
             if (attackingBusiness.Id == defendingBusinessId) return StatusCode(400, "You cannot espionage yourself");
 
