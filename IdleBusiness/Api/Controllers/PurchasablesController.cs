@@ -46,6 +46,7 @@ namespace IdleBusiness.Api.Controllers
                 .Where(s => s.PurchasableTypeId == Convert.ToInt32(purchasableTypeId))
                 .Include(s => s.PurchasableUpgrade)
                     .ThenInclude(s => s.PurchasableUpgrade) // Hard locks us into X number of upgrades, but I'm not sure of a better way to accomplish this right now
+                .Include(s => s.Type)
                 .OrderBy(s => s.IsSinglePurchase)
                 .ThenBy(s => s.UnlocksAtTotalEarnings)
                 .Select(s => PurchasableHelper.AdjustPurchasableCostWithSectorBonus(s, business))
