@@ -275,6 +275,8 @@ namespace IdleBusiness.Api.Controllers
             if (business.Sector != null) return StatusCode(400, "You are already a part of a sector");
 
             var sector = await _context.Sectors.SingleOrDefaultAsync(s => s.Id == sectorId);
+            if (sector == null) return StatusCode(400, "Invalid sector ID");
+
             business.Sector = sector;
             _context.Business.Update(business);
             await _context.SaveChangesAsync();
