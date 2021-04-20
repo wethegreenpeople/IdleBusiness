@@ -38,6 +38,7 @@ namespace IdleBusiness.Api.Controllers
             _logger.LogTrace($"Get all available purchasables");
             var business = await _context.Business
                 .Include(s => s.BusinessPurchases)
+                .Include(s => s.Sector)
                 .SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
 
             var purchasables = await _context
