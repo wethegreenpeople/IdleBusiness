@@ -265,6 +265,22 @@ namespace IdleBusiness.Api.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("/api/business/joinsector")]
+        public async Task<IActionResult> JoinSector(int businessId, int sectorId)
+        {
+            var business = await _context.Business.SingleOrDefaultAsync(s => s.Id == businessId);
+            if (business.LifeTimeEarnings < 10000000) return StatusCode(400, "You must grow more before you can join this sector.");
+            if (business.Sector.Id != 0 || business.Sector != null) return StatusCode(400, "You are already a part of a sector");
+
+            var sector = await _context.Sectors.SingleOrDefaultAsync(s => s.Id == sectorId);
+            business.Sector = sector;
+            _context.Business.Update(business);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(200, "Joined sector!");
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("/api/business/hasunreadmessages")]
         public async Task<IActionResult> HasUnreadMessages(int businessId)
         {
