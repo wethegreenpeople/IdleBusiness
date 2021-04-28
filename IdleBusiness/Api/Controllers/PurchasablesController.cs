@@ -76,6 +76,7 @@ namespace IdleBusiness.Api.Controllers
             var business = await _context.Business
                 .Include(s => s.BusinessPurchases)
                     .ThenInclude(s => s.Purchase)
+                .Include(s => s.Sector)
                 .SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(businessId));
             var purchasable = (await _context.Purchasables
                 .Include(s => s.Type)

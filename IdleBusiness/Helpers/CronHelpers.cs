@@ -82,14 +82,17 @@ namespace IdleBusiness.Helpers
 
             foreach (var item in espionages)
             {
-                item.Business.CashPerSecond += item.Investment.InvestmentAmount;
-
-                item.Business.ReceivedMessages.Add(new Message()
+                if (item.InvestmentDirection == InvestmentDirection.Investee)
                 {
-                    DateReceived = DateTime.UtcNow,
-                    MessageBody = $"After espionages were removed, you gained ${item.Investment.InvestmentAmount.ToKMB()} CPS",
-                    ReceivingBusinessId = item.BusinessId,
-                });
+                    item.Business.CashPerSecond += item.Investment.InvestmentAmount;
+
+                    item.Business.ReceivedMessages.Add(new Message()
+                    {
+                        DateReceived = DateTime.UtcNow,
+                        MessageBody = $"After espionages were removed, you gained ${item.Investment.InvestmentAmount.ToKMB()} CPS",
+                        ReceivingBusinessId = item.BusinessId,
+                    });
+                }
 
                 _context.Business.Update(item.Business);
                 _context.BusinessInvestments.Remove(item);
