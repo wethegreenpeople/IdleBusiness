@@ -303,7 +303,44 @@ namespace IdleBusiness.Api.Controllers
             _context.Business.Update(attackingBusiness);
             await _context.SaveChangesAsync();
 
-            return Ok($"Successfully stole {theftAmount} from {companyToEspionage.Name}");
+            return Ok($"Successfully stole {(int)theftAmount} from {companyToEspionage.Name}");
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("/api/business/arson")]
+        public async Task<IActionResult> AttemptArson(int attackingBusinessId, int defendingBusinessId)
+        {
+            double CalculateEspionageCost(Business business)
+            {
+                return business.Cash * 0.01;
+            }
+
+            var attackingBusiness = await _context.Business
+                .Include(s => s.BusinessPurchases)
+                .SingleOrDefaultAsync(s => s.Id == attackingBusinessId);
+            var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == defendingBusinessId);
+
+            if (companyToEspionage == null) return StatusCode(500);
+            if (attackingBusinessId == defendingBusinessId) return StatusCode(400, "Cannot steal commit arson on yourself");
+            if (!PurchasableHelper.HasBusinessPurchasedItem(attackingBusiness.BusinessPurchases, 36)) return StatusCode(400, "You must purchase 'Arsonist on retainer' before attempting arson");
+
+            var costOfEspionage = CalculateEspionageCost(attackingBusiness);
+
+            attackingBusiness.Cash -= costOfEspionage;
+            _context.Business.Update(attackingBusiness);
+            await _context.SaveChangesAsync();
+
+            var rand = new Random();
+            if (((attackingBusiness.EspionageChance * 100) - ((companyToEspionage.EspionageDefense * 100) * .95)) < rand.Next(0, 100)) return Ok("Unsuccessful Arson");
+
+            var arsonAmount = rand.Next(10, 40);
+
+            companyToEspionage.MaxEmployeeAmount -= arsonAmount;
+            companyToEspionage.EspionageDefense += .05;
+            _context.Business.Update(companyToEspionage);
+            await _context.SaveChangesAsync();
+
+            return Ok($"Removed {arsonAmount} max employees from {companyToEspionage.Name}");
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
