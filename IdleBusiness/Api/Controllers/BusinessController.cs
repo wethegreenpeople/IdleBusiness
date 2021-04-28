@@ -266,6 +266,47 @@ namespace IdleBusiness.Api.Controllers
         }
 
         [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("/api/business/theft")]
+        public async Task<IActionResult> AttemptTheft(int attackingBusinessId, int defendingBusinessId)
+        {
+            double CalculateEspionageCost(Business business)
+            {
+                return business.Cash * 0.01;
+            }
+
+            var attackingBusiness = await _context.Business
+                .Include(s => s.BusinessPurchases)
+                .SingleOrDefaultAsync(s => s.Id == attackingBusinessId);
+            var companyToEspionage = await _context.Business.SingleOrDefaultAsync(s => s.Id == defendingBusinessId);
+
+            if (companyToEspionage == null) return StatusCode(500);
+            if (attackingBusinessId == defendingBusinessId) return StatusCode(400, "Cannot steal commit theft against yourself");
+            if (!PurchasableHelper.HasBusinessPurchasedItem(attackingBusiness.BusinessPurchases, 35)) return StatusCode(400, "You must purchase 'Large funnel' before attempting theft");
+
+
+            var costOfEspionage = CalculateEspionageCost(attackingBusiness);
+
+            attackingBusiness.Cash -= costOfEspionage;
+            _context.Business.Update(attackingBusiness);
+            await _context.SaveChangesAsync();
+
+            var rand = new Random();
+            if (((attackingBusiness.EspionageChance * 100) - ((companyToEspionage.EspionageDefense * 100) * .85)) < rand.Next(0, 100)) return Ok("Unsuccessful Theft");
+
+            double theftPercentage = rand.Next(1, 15);
+            var theftAmount = companyToEspionage.Cash * (theftPercentage / 100);
+
+            companyToEspionage.Cash -= theftAmount;
+            companyToEspionage.EspionageDefense += .05;
+            attackingBusiness.Cash += theftAmount;
+            _context.Business.Update(companyToEspionage);
+            _context.Business.Update(attackingBusiness);
+            await _context.SaveChangesAsync();
+
+            return Ok($"Successfully stole {theftAmount} from {companyToEspionage.Name}");
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPost("/api/business/joinsector")]
         public async Task<IActionResult> JoinSector(int businessId, int sectorId)
         {
