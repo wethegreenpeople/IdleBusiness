@@ -103,6 +103,8 @@ namespace IdleBusiness.Helpers
                     if (purchase.Type.Id == (int)PurchasableTypeEnum.RealEstate)
                         purchase.CashModifier = 0;
                     break;
+                default:
+                    break;
             }
 
             return purchase;
@@ -136,6 +138,9 @@ namespace IdleBusiness.Helpers
                     break;
                 case (int)PurchasableTypeEnum.RealEstate:
                     return true;
+                case (int)PurchasableTypeEnum.Marketplace:
+                    if (purchase.AmountAvailable > 0) return true;
+                    break;
             }
 
             return false;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdleBusiness.Data;
 using IdleBusiness.Helpers;
+using IdleBusiness.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Http;
@@ -113,6 +114,12 @@ namespace IdleBusiness.Api.Controllers
 
             if (purchasable.IsGlobalPurchase)
                 await _purchasableHelper.ApplyGlobalPurchaseBonus(purchasable, business);
+            if (purchasable.PurchasableTypeId == 4 && purchasable.AmountAvailable > 0)
+            {
+                var trackedPurchase = await _context.Purchasables.SingleOrDefaultAsync(s => s.Id == Convert.ToInt32(purchasableId));
+                trackedPurchase.AmountAvailable -= Convert.ToInt32(purchaseAmount);
+                _context.Purchasables.Update(trackedPurchase);
+            }
 
             try
             {
@@ -128,6 +135,46 @@ namespace IdleBusiness.Api.Controllers
             {
                 return StatusCode(500);
             }
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("/api/purchasable/createmarketplaceitem")]
+        public async Task<IActionResult> CreateMarketplaceItem(int businessId, string itemName, int productionAmount)
+        {
+            if (string.IsNullOrEmpty(itemName)) return StatusCode(400, "Item name is required");
+
+            try
+            {
+                var business = await _context.Business.SingleOrDefaultAsync(s => s.Id == businessId);
+
+                var costToProduce = (business.LifeTimeEarnings * .10) * (100.0 / productionAmount);
+                var costOfItem = (costToProduce / productionAmount) * .1;
+                var cpsGain = ((costOfItem * .01) / productionAmount) > 1000 ? 1000 : (costOfItem * .01) / productionAmount;
+
+                if (business == null) return StatusCode(500);
+                if (business.LifeTimeEarnings < 1000000000) return StatusCode(400, "Cannot create market place items until you have reached 1 bn in lifetime earnings");
+                if (business.Cash < costToProduce) return StatusCode(400, "You do not have enough cash to produce this item");
+                if (await _context.Purchasables.AnyAsync(s => s.CreatedByBusinessId == businessId)) return StatusCode(400, "You've already created a marketplace item");
+
+                var item = new Purchasable()
+                {
+                    Name = itemName,
+                    CashModifier = cpsGain,
+                    Cost = costOfItem,
+                    PerOwnedModifier = 0.05,
+                    PurchasableTypeId = (int)PurchasableTypeEnum.Marketplace,
+                    AmountAvailable = productionAmount,
+                    CreatedByBusinessId = businessId
+                };
+
+                _context.Purchasables.Add(item);
+                await _context.SaveChangesAsync();
+
+                return Ok($"Succesfully created {itemName} in the marketplace");
+            }
+            catch { return StatusCode(500); }
+
+
         }
     }
 }

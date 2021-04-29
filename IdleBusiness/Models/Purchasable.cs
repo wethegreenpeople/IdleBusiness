@@ -21,6 +21,8 @@ namespace IdleBusiness.Models
         public bool IsSinglePurchase { get; set; }
         public bool IsGlobalPurchase { get; set; }
         public bool IsUpgrade { get; set; }
+        public int CreatedByBusinessId { get; set; }
+        public int AmountAvailable { get; set; }
 
         public virtual ICollection<BusinessPurchase> BusinessPurchases { get; set; }
 

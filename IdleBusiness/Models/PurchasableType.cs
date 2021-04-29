@@ -18,5 +18,6 @@ namespace IdleBusiness.Models
         Employee = 1,
         Buff = 2,
         RealEstate = 3,
+        Marketplace = 4,
     }
 }
