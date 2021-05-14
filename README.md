@@ -2,7 +2,7 @@
 
 
 # IdleBusiness
-A multiplayer idle game
+A multiplayer idle game, play online, or on your phone!
 
 Try it out at: http://idlebusiness.com
 
